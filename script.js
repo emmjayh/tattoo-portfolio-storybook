@@ -1,8 +1,8 @@
-// Book Gallery with Two-Page Spread
+// Book Gallery with Proper Page Spreads
 class BookGallery {
     constructor() {
-        this.currentPage = 0;
-        this.totalPages = 10; // Cover + 8 gallery + contact
+        this.currentSpread = 0; // Which spread we're viewing (0 = pages 1-2, 1 = pages 3-4, etc.)
+        this.totalPages = 18; // Total individual pages (including cover and back)
         this.isAnimating = false;
         this.hoverTimeout = null;
         this.hoverDelay = 1000; // 1 second hover delay
@@ -18,8 +18,6 @@ class BookGallery {
         this.flippingPage = document.getElementById('flippingPage');
         this.hoverLeft = document.getElementById('hoverLeft');
         this.hoverRight = document.getElementById('hoverRight');
-        this.leftStack = document.getElementById('leftStack');
-        this.rightStack = document.getElementById('rightStack');
         this.pageCounter = document.getElementById('currentPageNum');
         this.book = document.getElementById('book');
         
@@ -27,26 +25,16 @@ class BookGallery {
         this.loadPages();
         
         // Initialize both pages with proper content
-        this.initializePages();
-        
-        // Initialize stacks
-        this.updateStacks();
+        this.updateSpread();
         
         // Bind events
         this.bindEvents();
     }
     
-    initializePages() {
-        // Set up initial page content
-        // Right page shows cover/first page
-        this.rightPage.innerHTML = `<div class="page-inner">${this.pages[0].content}</div>`;
-        // Left page is initially blank (no previous page)
-        this.leftPage.innerHTML = '<div class="page-inner"></div>';
-    }
-    
     loadPages() {
-        // Cover page
+        // Page 1 - Cover (left side when closed, shows on right when first opened)
         this.pages.push({
+            pageNum: 1,
             type: 'cover',
             content: `
                 <div class="page-header">
@@ -58,36 +46,64 @@ class BookGallery {
                     <p>Each piece tells a unique story, crafted with passion and precision.</p>
                     <p class="instruction">← Hover over the page edges to turn →</p>
                 </div>
+                <div class="page-number-display">1</div>
             `
         });
         
-        // Gallery pages
+        // Page 2 - First gallery page
         const templates = document.querySelectorAll('.page-template');
+        let pageNum = 2;
+        
         templates.forEach(template => {
             if (template.dataset.page === 'contact') {
-                this.pages.push({
-                    type: 'contact',
-                    content: template.innerHTML
-                });
-            } else {
-                const img = template.querySelector('img');
-                const h3 = template.querySelector('h3');
-                const p = template.querySelector('p');
-                
-                this.pages.push({
-                    type: 'gallery',
-                    content: `
-                        <div class="gallery-content">
-                            ${img ? img.outerHTML : ''}
-                            <div class="gallery-info">
-                                <h3>${h3 ? h3.textContent : ''}</h3>
-                                <p>${p ? p.textContent : ''}</p>
-                            </div>
-                        </div>
-                    `
-                });
+                // Contact page goes at the end
+                return;
             }
+            
+            const img = template.querySelector('img');
+            const h3 = template.querySelector('h3');
+            const p = template.querySelector('p');
+            
+            this.pages.push({
+                pageNum: pageNum,
+                type: 'gallery',
+                content: `
+                    <div class="gallery-content">
+                        ${img ? img.outerHTML : ''}
+                        <div class="gallery-info">
+                            <h3>${h3 ? h3.textContent : ''}</h3>
+                            <p>${p ? p.textContent : ''}</p>
+                        </div>
+                    </div>
+                    <div class="page-number-display">${pageNum}</div>
+                `
+            });
+            pageNum++;
         });
+        
+        // Add contact page
+        const contactTemplate = document.querySelector('.page-template[data-page="contact"]');
+        if (contactTemplate) {
+            this.pages.push({
+                pageNum: pageNum,
+                type: 'contact',
+                content: `
+                    ${contactTemplate.innerHTML}
+                    <div class="page-number-display">${pageNum}</div>
+                `
+            });
+        }
+        
+        // Add blank pages if needed to make even number
+        if (this.pages.length % 2 !== 0) {
+            this.pages.push({
+                pageNum: pageNum + 1,
+                type: 'blank',
+                content: `<div class="blank-page"></div>`
+            });
+        }
+        
+        this.totalPages = this.pages.length;
     }
     
     bindEvents() {
@@ -142,14 +158,16 @@ class BookGallery {
     turnPage(direction) {
         if (this.isAnimating) return;
         
-        if (direction === 'prev' && this.currentPage === 0) return;
-        if (direction === 'next' && this.currentPage >= this.totalPages - 1) return;
+        const maxSpreads = Math.ceil(this.totalPages / 2);
+        
+        if (direction === 'prev' && this.currentSpread === 0) return;
+        if (direction === 'next' && this.currentSpread >= maxSpreads - 1) return;
         
         this.isAnimating = true;
         
         if (direction === 'next') {
-            // Turning page forward
-            this.currentPage++;
+            // Turning pages forward (flip right page over to left)
+            this.currentSpread++;
             
             // Set up the flipping page with current right content
             this.flippingPage.innerHTML = this.rightPage.innerHTML;
@@ -160,9 +178,8 @@ class BookGallery {
             this.flippingPage.style.transformOrigin = 'left center';
             this.flippingPage.classList.add('right-page');
             
-            // Update right page with new content immediately but hidden
+            // Hide right page and prepare new content
             this.rightPage.style.visibility = 'hidden';
-            this.rightPage.innerHTML = `<div class="page-inner">${this.pages[this.currentPage].content}</div>`;
             
             // Animate the flip
             setTimeout(() => {
@@ -170,9 +187,8 @@ class BookGallery {
                 this.flippingPage.style.transform = 'rotateY(-180deg)';
                 
                 setTimeout(() => {
-                    // Update left page with the content that was just on the right
-                    this.leftPage.innerHTML = `<div class="page-inner">${this.getLeftPageContent(this.currentPage)}</div>`;
-                    this.rightPage.style.visibility = 'visible';
+                    // Update both pages with new spread content
+                    this.updateSpread();
                     
                     // Clean up
                     this.flippingPage.style.display = 'none';
@@ -181,14 +197,12 @@ class BookGallery {
                     this.flippingPage.classList.remove('right-page');
                     
                     this.isAnimating = false;
-                    this.updateStacks();
-                    this.updateCounter();
                 }, 800);
             }, 50);
             
         } else {
-            // Turning page backward
-            this.currentPage--;
+            // Turning pages backward (flip left page back to right)
+            this.currentSpread--;
             
             // Set up the flipping page with current left content
             this.flippingPage.innerHTML = this.leftPage.innerHTML;
@@ -200,9 +214,8 @@ class BookGallery {
             this.flippingPage.style.transformOrigin = 'right center';
             this.flippingPage.classList.add('left-page');
             
-            // Update left page with previous content
+            // Hide left page
             this.leftPage.style.visibility = 'hidden';
-            this.leftPage.innerHTML = `<div class="page-inner">${this.getLeftPageContent(this.currentPage)}</div>`;
             
             // Animate the flip back
             setTimeout(() => {
@@ -210,9 +223,8 @@ class BookGallery {
                 this.flippingPage.style.transform = 'rotateY(0deg)';
                 
                 setTimeout(() => {
-                    // Update right page with previous content
-                    this.rightPage.innerHTML = `<div class="page-inner">${this.pages[this.currentPage].content}</div>`;
-                    this.leftPage.style.visibility = 'visible';
+                    // Update both pages with new spread content
+                    this.updateSpread();
                     
                     // Clean up
                     this.flippingPage.style.display = 'none';
@@ -221,52 +233,46 @@ class BookGallery {
                     this.flippingPage.classList.remove('left-page');
                     
                     this.isAnimating = false;
-                    this.updateStacks();
-                    this.updateCounter();
                 }, 800);
             }, 50);
         }
     }
     
-    getLeftPageContent(pageNum) {
-        // Return actual previous page content or blank for first page
-        if (pageNum <= 0) {
-            return ''; // Blank left page at beginning
+    updateSpread() {
+        // Calculate which pages to show based on current spread
+        const leftPageIndex = this.currentSpread * 2; // Odd pages: 1, 3, 5...
+        const rightPageIndex = this.currentSpread * 2 + 1; // Even pages: 2, 4, 6...
+        
+        // Update left page
+        if (leftPageIndex < this.pages.length) {
+            this.leftPage.innerHTML = `<div class="page-inner">${this.pages[leftPageIndex].content}</div>`;
+            this.leftPage.style.visibility = 'visible';
+        } else {
+            this.leftPage.innerHTML = '<div class="page-inner blank-page"></div>';
+            this.leftPage.style.visibility = 'visible';
         }
         
-        // Show the previous page's actual content on the left
-        const prevPage = this.pages[pageNum - 1];
-        if (prevPage) {
-            return prevPage.content;
+        // Update right page
+        if (rightPageIndex < this.pages.length) {
+            this.rightPage.innerHTML = `<div class="page-inner">${this.pages[rightPageIndex].content}</div>`;
+            this.rightPage.style.visibility = 'visible';
+        } else {
+            this.rightPage.innerHTML = '<div class="page-inner blank-page"></div>';
+            this.rightPage.style.visibility = 'visible';
         }
-        return '';
-    }
-    
-    updateStacks() {
-        // Update left stack (pages read)
-        const leftCount = Math.min(this.currentPage, 5);
-        let leftHTML = '';
-        for (let i = 0; i < leftCount; i++) {
-            leftHTML += `<div class="stack-page" style="transform: translateZ(-${i * 3}px) translateX(-${i}px);"></div>`;
-        }
-        this.leftStack.innerHTML = leftHTML;
         
-        // Update right stack (pages remaining)
-        const rightCount = Math.min(this.totalPages - this.currentPage - 1, 8);
-        let rightHTML = '';
-        for (let i = 0; i < rightCount; i++) {
-            rightHTML += `<div class="stack-page stack-${i + 1}"></div>`;
-        }
-        this.rightStack.innerHTML = rightHTML;
+        // Update page counter
+        this.updateCounter();
     }
     
     updateCounter() {
-        if (this.currentPage === 0) {
+        const leftPage = this.currentSpread * 2 + 1;
+        const rightPage = this.currentSpread * 2 + 2;
+        
+        if (this.currentSpread === 0 && leftPage === 1) {
             this.pageCounter.textContent = 'Cover';
-        } else if (this.currentPage === this.totalPages - 1) {
-            this.pageCounter.textContent = 'Contact';
         } else {
-            this.pageCounter.textContent = `Page ${this.currentPage}`;
+            this.pageCounter.textContent = `Pages ${leftPage}-${rightPage}`;
         }
     }
     
@@ -311,57 +317,32 @@ document.head.insertAdjacentHTML('beforeend', `
             transition: opacity 1s ease-in;
         }
         
-        /* Back page styling */
-        .page-back {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .back-page-design {
-            text-align: center;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .page-number-back {
+        /* Page number display */
+        .page-number-display {
             position: absolute;
-            top: 40px;
-            left: 40px;
+            bottom: 40px;
             font-size: 0.9rem;
             color: #999;
             font-style: italic;
         }
         
-        .decorative-pattern {
-            width: 200px;
-            height: 200px;
-            border: 2px solid rgba(212, 175, 55, 0.1);
-            border-radius: 50%;
-            position: relative;
+        .left-page .page-number-display {
+            left: 60px;
         }
         
-        .decorative-pattern::before,
-        .decorative-pattern::after {
-            content: '';
-            position: absolute;
+        .right-page .page-number-display {
+            right: 60px;
+        }
+        
+        /* Blank page */
+        .blank-page {
             width: 100%;
             height: 100%;
-            border: 1px solid rgba(212, 175, 55, 0.05);
-            border-radius: 50%;
-        }
-        
-        .decorative-pattern::before {
-            transform: scale(0.8);
-        }
-        
-        .decorative-pattern::after {
-            transform: scale(0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ddd;
+            font-style: italic;
         }
     </style>
 `);
