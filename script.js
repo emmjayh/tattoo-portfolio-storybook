@@ -1,98 +1,117 @@
-// Fullscreen Book Gallery
-class FullscreenBookGallery {
+// Simple Book Gallery
+class BookGallery {
     constructor() {
-        this.currentSpread = 0; // 0 = cover, 1 = pages 2-3, 2 = pages 4-5, etc.
-        this.totalSpreads = 5; // Cover + 4 spreads of content + contact
+        this.currentPage = 0;
+        this.totalPages = 10; // Cover + 8 gallery + contact
         this.isAnimating = false;
         this.hoverTimeout = null;
-        this.hoverDelay = 1200; // 1.2 seconds hover delay
-        this.pageData = [];
+        this.hoverDelay = 1000; // 1 second hover delay
+        this.pages = [];
         
         this.init();
     }
     
     init() {
         // Cache DOM elements
-        this.leftPage = document.getElementById('leftPage');
-        this.rightPage = document.getElementById('rightPage');
+        this.currentPageEl = document.getElementById('currentPage');
         this.hoverLeft = document.getElementById('hoverLeft');
         this.hoverRight = document.getElementById('hoverRight');
         this.leftStack = document.getElementById('leftStack');
         this.rightStack = document.getElementById('rightStack');
+        this.pageCounter = document.getElementById('currentPageNum');
+        this.book = document.getElementById('book');
         
-        // Load page data
-        this.loadPageData();
+        // Load page content
+        this.loadPages();
         
-        // Update stack visualization
+        // Initialize stacks
         this.updateStacks();
         
         // Bind events
         this.bindEvents();
     }
     
-    loadPageData() {
-        // Collect all page data from hidden pages
-        const pages = document.querySelectorAll('.page-data');
-        pages.forEach(page => {
-            const pageNum = page.dataset.page;
-            const img = page.querySelector('img');
-            const h3 = page.querySelector('h3');
-            const p = page.querySelector('p');
-            
-            if (pageNum === 'contact') {
-                this.pageData.push({
+    loadPages() {
+        // Cover page
+        this.pages.push({
+            type: 'cover',
+            content: `
+                <div class="page-header">
+                    <h1 class="portfolio-title">Ink Stories</h1>
+                    <p class="portfolio-subtitle">Tattoo Artistry Portfolio</p>
+                </div>
+                <div class="welcome-content">
+                    <p>Welcome to my collection of body art.</p>
+                    <p>Each piece tells a unique story, crafted with passion and precision.</p>
+                    <p class="instruction">← Hover over the page edges to turn →</p>
+                </div>
+            `
+        });
+        
+        // Gallery pages
+        const templates = document.querySelectorAll('.page-template');
+        templates.forEach(template => {
+            if (template.dataset.page === 'contact') {
+                this.pages.push({
                     type: 'contact',
-                    content: page.querySelector('.contact-page').innerHTML
+                    content: template.innerHTML
                 });
             } else {
-                this.pageData.push({
+                const img = template.querySelector('img');
+                const h3 = template.querySelector('h3');
+                const p = template.querySelector('p');
+                
+                this.pages.push({
                     type: 'gallery',
-                    img: img ? img.outerHTML : '',
-                    title: h3 ? h3.textContent : '',
-                    description: p ? p.textContent : '',
-                    pageNum: pageNum
+                    content: `
+                        <div class="gallery-content">
+                            ${img ? img.outerHTML : ''}
+                            <div class="gallery-info">
+                                <h3>${h3 ? h3.textContent : ''}</h3>
+                                <p>${p ? p.textContent : ''}</p>
+                            </div>
+                        </div>
+                    `
                 });
             }
         });
     }
     
     bindEvents() {
-        // Hover zones with delay
+        // Hover with delay
         this.hoverLeft.addEventListener('mouseenter', () => this.startHoverTimer('prev'));
         this.hoverLeft.addEventListener('mouseleave', () => this.cancelHoverTimer());
         
         this.hoverRight.addEventListener('mouseenter', () => this.startHoverTimer('next'));
         this.hoverRight.addEventListener('mouseleave', () => this.cancelHoverTimer());
         
-        // Click for instant page turn
-        this.hoverLeft.addEventListener('click', () => this.previousPage());
-        this.hoverRight.addEventListener('click', () => this.nextPage());
+        // Click for instant flip
+        this.hoverLeft.addEventListener('click', () => this.turnPage('prev'));
+        this.hoverRight.addEventListener('click', () => this.turnPage('next'));
         
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') this.turnPage('prev');
+            if (e.key === 'ArrowRight') this.turnPage('next');
+        });
         
-        // Touch/swipe support
+        // Touch support
         this.addTouchSupport();
     }
     
     startHoverTimer(direction) {
-        // Clear any existing timer
         this.cancelHoverTimer();
         
         // Visual feedback
         if (direction === 'prev') {
-            this.hoverLeft.style.background = 'linear-gradient(to right, rgba(212, 175, 55, 0.08), transparent)';
+            this.hoverLeft.style.background = 'linear-gradient(to right, rgba(212, 175, 55, 0.06), transparent)';
         } else {
-            this.hoverRight.style.background = 'linear-gradient(to left, rgba(212, 175, 55, 0.08), transparent)';
+            this.hoverRight.style.background = 'linear-gradient(to left, rgba(212, 175, 55, 0.06), transparent)';
         }
         
-        // Start timer for page flip
+        // Start timer
         this.hoverTimeout = setTimeout(() => {
-            if (direction === 'prev') {
-                this.previousPage();
-            } else {
-                this.nextPage();
-            }
+            this.turnPage(direction);
         }, this.hoverDelay);
     }
     
@@ -107,158 +126,97 @@ class FullscreenBookGallery {
         this.hoverRight.style.background = '';
     }
     
-    previousPage() {
-        if (this.isAnimating || this.currentSpread === 0) return;
+    turnPage(direction) {
+        if (this.isAnimating) return;
         
-        this.isAnimating = true;
-        this.currentSpread--;
-        
-        // Animate right page turning back
-        this.rightPage.classList.add('page-turning-back');
-        
-        setTimeout(() => {
-            this.updatePageContent();
-            this.rightPage.classList.remove('page-turning-back');
-            
-            // Update stacks
-            this.updateStacks();
-            
-            setTimeout(() => {
-                this.isAnimating = false;
-            }, 100);
-        }, 600);
-    }
-    
-    nextPage() {
-        if (this.isAnimating || this.currentSpread >= this.totalSpreads - 1) return;
+        if (direction === 'prev' && this.currentPage === 0) return;
+        if (direction === 'next' && this.currentPage >= this.totalPages - 1) return;
         
         this.isAnimating = true;
         
-        // Animate right page turning forward
-        this.rightPage.classList.add('page-turning');
+        const oldPage = this.currentPageEl;
+        const newPage = document.createElement('div');
+        newPage.className = 'page';
+        newPage.style.visibility = 'hidden';
         
-        setTimeout(() => {
-            this.currentSpread++;
-            this.updatePageContent();
-            this.rightPage.classList.remove('page-turning');
+        if (direction === 'next') {
+            this.currentPage++;
             
-            // Update stacks
-            this.updateStacks();
+            // Set new page content
+            newPage.innerHTML = `<div class="page-inner">${this.pages[this.currentPage].content}</div>`;
+            this.book.appendChild(newPage);
+            
+            // Animate old page flipping away
+            oldPage.classList.add('page-flip-right');
             
             setTimeout(() => {
-                this.isAnimating = false;
+                newPage.style.visibility = 'visible';
+                newPage.classList.add('page-flip-left');
+                
+                setTimeout(() => {
+                    oldPage.remove();
+                    newPage.classList.remove('page-flip-left');
+                    newPage.id = 'currentPage';
+                    this.currentPageEl = newPage;
+                    this.isAnimating = false;
+                    this.updateStacks();
+                    this.updateCounter();
+                }, 800);
             }, 100);
-        }, 600);
-    }
-    
-    updatePageContent() {
-        // Update left page
-        if (this.currentSpread === 0) {
-            // Cover page on left
-            this.leftPage.innerHTML = `
-                <div class="page-inner">
-                    <div class="page-header">
-                        <h1 class="portfolio-title">Ink Stories</h1>
-                        <p class="portfolio-subtitle">Tattoo Artistry Portfolio</p>
-                    </div>
-                    <div class="welcome-content">
-                        <p>Welcome to my collection of body art. Each piece tells a unique story, crafted with passion and precision.</p>
-                        <p class="instruction">Hover over the page edges to turn →</p>
-                    </div>
-                    <div class="page-number">Cover</div>
-                </div>
-            `;
+            
         } else {
-            // Content pages on left (even numbers)
-            const leftPageIndex = (this.currentSpread - 1) * 2;
-            if (leftPageIndex < this.pageData.length) {
-                const pageInfo = this.pageData[leftPageIndex];
-                if (pageInfo.type === 'gallery') {
-                    this.leftPage.innerHTML = `
-                        <div class="page-inner">
-                            <div class="page-content">
-                                ${pageInfo.img}
-                                <div class="page-info">
-                                    <h3>${pageInfo.title}</h3>
-                                    <p>${pageInfo.description}</p>
-                                </div>
-                            </div>
-                            <div class="page-number">${leftPageIndex + 2}</div>
-                        </div>
-                    `;
-                }
-            }
-        }
-        
-        // Update right page
-        if (this.currentSpread === 0) {
-            // First tattoo on right when showing cover
-            const pageInfo = this.pageData[0];
-            this.rightPage.innerHTML = `
-                <div class="page-inner">
-                    <div class="page-content">
-                        ${pageInfo.img}
-                        <div class="page-info">
-                            <h3>${pageInfo.title}</h3>
-                            <p>${pageInfo.description}</p>
-                        </div>
-                    </div>
-                    <div class="page-number">1</div>
-                </div>
-            `;
-        } else {
-            // Content pages on right (odd numbers)
-            const rightPageIndex = (this.currentSpread - 1) * 2 + 1;
-            if (rightPageIndex < this.pageData.length) {
-                const pageInfo = this.pageData[rightPageIndex];
-                if (pageInfo.type === 'gallery') {
-                    this.rightPage.innerHTML = `
-                        <div class="page-inner">
-                            <div class="page-content">
-                                ${pageInfo.img}
-                                <div class="page-info">
-                                    <h3>${pageInfo.title}</h3>
-                                    <p>${pageInfo.description}</p>
-                                </div>
-                            </div>
-                            <div class="page-number">${rightPageIndex + 2}</div>
-                        </div>
-                    `;
-                } else if (pageInfo.type === 'contact') {
-                    this.rightPage.innerHTML = `
-                        <div class="page-inner">
-                            ${pageInfo.content}
-                            <div class="page-number">Contact</div>
-                        </div>
-                    `;
-                }
-            }
+            this.currentPage--;
+            
+            // Set new page content
+            newPage.innerHTML = `<div class="page-inner">${this.pages[this.currentPage].content}</div>`;
+            newPage.style.transform = 'rotateY(-180deg)';
+            this.book.appendChild(newPage);
+            
+            setTimeout(() => {
+                newPage.style.visibility = 'visible';
+                newPage.classList.add('page-flip-left');
+                oldPage.style.zIndex = '5';
+                
+                setTimeout(() => {
+                    oldPage.remove();
+                    newPage.classList.remove('page-flip-left');
+                    newPage.id = 'currentPage';
+                    newPage.style.transform = '';
+                    newPage.style.zIndex = '';
+                    this.currentPageEl = newPage;
+                    this.isAnimating = false;
+                    this.updateStacks();
+                    this.updateCounter();
+                }, 800);
+            }, 100);
         }
     }
     
     updateStacks() {
-        // Update left stack (pages already read)
-        const leftStackCount = Math.min(this.currentSpread, 5);
-        const leftStackHTML = [];
-        for (let i = 0; i < leftStackCount; i++) {
-            leftStackHTML.push(`<div class="stack-page stack-${i + 1}"></div>`);
+        // Update left stack (pages read)
+        const leftCount = Math.min(this.currentPage, 5);
+        let leftHTML = '';
+        for (let i = 0; i < leftCount; i++) {
+            leftHTML += `<div class="stack-page" style="transform: translateZ(-${i * 3}px) translateX(-${i}px);"></div>`;
         }
-        this.leftStack.innerHTML = leftStackHTML.join('');
+        this.leftStack.innerHTML = leftHTML;
         
         // Update right stack (pages remaining)
-        const rightStackCount = Math.min(this.totalSpreads - this.currentSpread - 1, 8);
-        const rightStackHTML = [];
-        for (let i = 0; i < rightStackCount; i++) {
-            rightStackHTML.push(`<div class="stack-page stack-${i + 1}"></div>`);
+        const rightCount = Math.min(this.totalPages - this.currentPage - 1, 8);
+        let rightHTML = '';
+        for (let i = 0; i < rightCount; i++) {
+            rightHTML += `<div class="stack-page stack-${i + 1}"></div>`;
         }
-        this.rightStack.innerHTML = rightStackHTML.join('');
+        this.rightStack.innerHTML = rightHTML;
     }
     
-    handleKeyboard(e) {
-        if (e.key === 'ArrowLeft') {
-            this.previousPage();
-        } else if (e.key === 'ArrowRight') {
-            this.nextPage();
+    updateCounter() {
+        if (this.currentPage === 0) {
+            this.pageCounter.textContent = 'Cover';
+        } else if (this.currentPage === this.totalPages - 1) {
+            this.pageCounter.textContent = 'Contact';
+        } else {
+            this.pageCounter.textContent = `Page ${this.currentPage}`;
         }
     }
     
@@ -266,52 +224,41 @@ class FullscreenBookGallery {
         let touchStartX = 0;
         let touchEndX = 0;
         
-        const bookContainer = document.getElementById('bookContainer');
-        
-        bookContainer.addEventListener('touchstart', (e) => {
+        this.book.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
         }, { passive: true });
         
-        bookContainer.addEventListener('touchend', (e) => {
+        this.book.addEventListener('touchend', (e) => {
             touchEndX = e.changedTouches[0].screenX;
-            this.handleSwipe();
-        }, { passive: true });
-        
-        const handleSwipe = () => {
-            const swipeThreshold = 50;
             const diff = touchStartX - touchEndX;
             
-            if (Math.abs(diff) > swipeThreshold) {
+            if (Math.abs(diff) > 50) {
                 if (diff > 0) {
-                    // Swipe left - next page
-                    this.nextPage();
+                    this.turnPage('next');
                 } else {
-                    // Swipe right - previous page
-                    this.previousPage();
+                    this.turnPage('prev');
                 }
             }
-        };
-        
-        this.handleSwipe = handleSwipe;
+        }, { passive: true });
     }
 }
 
-// Initialize when DOM is ready
+// Initialize when ready
 document.addEventListener('DOMContentLoaded', () => {
-    const gallery = new FullscreenBookGallery();
+    const gallery = new BookGallery();
     
-    // Add initial load animation
+    // Fade in animation
     setTimeout(() => {
         document.querySelector('.fullscreen-book').style.opacity = '1';
     }, 100);
 });
 
-// Add CSS for initial load
+// Add initial CSS
 document.head.insertAdjacentHTML('beforeend', `
     <style>
         .fullscreen-book {
             opacity: 0;
-            transition: opacity 1.5s ease-in;
+            transition: opacity 1s ease-in;
         }
     </style>
 `);

@@ -5,7 +5,8 @@
       "Bash(npm install)",
       "Bash(git add:*)",
       "Bash(git config:*)",
-      "Bash(gh repo create:*)"
+      "Bash(gh repo create:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

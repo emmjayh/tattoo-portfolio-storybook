@@ -12,103 +12,25 @@
         <div class="book-container" id="bookContainer">
             <!-- Left page stack (previous pages) -->
             <div class="page-stack left-stack" id="leftStack">
-                <div class="stack-page stack-1"></div>
-                <div class="stack-page stack-2"></div>
-                <div class="stack-page stack-3"></div>
-                <div class="stack-page stack-4"></div>
-                <div class="stack-page stack-5"></div>
+                <div class="stack-page"></div>
             </div>
             
             <!-- Center book spine -->
             <div class="book-spine"></div>
             
-            <!-- Main book pages -->
-            <div class="book">
-                <!-- Left page (even page numbers) -->
-                <div class="book-page left-page" id="leftPage">
+            <!-- Main book with single visible page -->
+            <div class="book" id="book">
+                <!-- Current visible page -->
+                <div class="page current-page" id="currentPage" data-page="0">
                     <div class="page-inner">
                         <div class="page-header">
                             <h1 class="portfolio-title">Ink Stories</h1>
                             <p class="portfolio-subtitle">Tattoo Artistry Portfolio</p>
                         </div>
                         <div class="welcome-content">
-                            <p>Welcome to my collection of body art. Each piece tells a unique story, crafted with passion and precision.</p>
-                            <p class="instruction">Hover over the page edges to turn →</p>
-                        </div>
-                        <div class="page-number">Cover</div>
-                    </div>
-                </div>
-                
-                <!-- Right page (odd page numbers) -->
-                <div class="book-page right-page active" id="rightPage" data-page="1">
-                    <div class="page-inner">
-                        <div class="page-content">
-                            <img src="https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=800" alt="Dragon Sleeve">
-                            <div class="page-info">
-                                <h3>Dragon Sleeve</h3>
-                                <p>Traditional Japanese style dragon sleeve with cherry blossoms</p>
-                            </div>
-                        </div>
-                        <div class="page-number">1</div>
-                    </div>
-                </div>
-                
-                <!-- Hidden pages for content -->
-                <div class="hidden-pages">
-                    <div class="page-data" data-page="2">
-                        <img src="https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?w=800" alt="Geometric Wolf">
-                        <h3>Geometric Wolf</h3>
-                        <p>Modern geometric design with intricate line work</p>
-                    </div>
-                    
-                    <div class="page-data" data-page="3">
-                        <img src="https://images.unsplash.com/photo-1567056602606-6172dedda3ac?w=800" alt="Floral Mandala">
-                        <h3>Floral Mandala</h3>
-                        <p>Detailed mandala with botanical elements</p>
-                    </div>
-                    
-                    <div class="page-data" data-page="4">
-                        <img src="https://images.unsplash.com/photo-1582201957428-5ff47ff7605b?w=800" alt="Watercolor Phoenix">
-                        <h3>Watercolor Phoenix</h3>
-                        <p>Vibrant watercolor style phoenix rising</p>
-                    </div>
-                    
-                    <div class="page-data" data-page="5">
-                        <img src="https://images.unsplash.com/photo-1604374279907-63f9c036e524?w=800" alt="Blackwork Portrait">
-                        <h3>Blackwork Portrait</h3>
-                        <p>Realistic portrait in bold blackwork style</p>
-                    </div>
-                    
-                    <div class="page-data" data-page="6">
-                        <img src="https://images.unsplash.com/photo-1552627019-947c3789ffb5?w=800" alt="Minimalist Lines">
-                        <h3>Minimalist Lines</h3>
-                        <p>Elegant minimalist design with single line technique</p>
-                    </div>
-                    
-                    <div class="page-data" data-page="7">
-                        <img src="https://images.unsplash.com/photo-1565058379802-bbe93b2f703a?w=800" alt="Cosmic Sleeve">
-                        <h3>Cosmic Sleeve</h3>
-                        <p>Galaxy-themed sleeve with nebulas and constellations</p>
-                    </div>
-                    
-                    <div class="page-data" data-page="8">
-                        <img src="https://images.unsplash.com/photo-1596401057633-54a8080c92b5?w=800" alt="Bio-mechanical">
-                        <h3>Bio-mechanical Art</h3>
-                        <p>Fusion of organic and mechanical elements</p>
-                    </div>
-                    
-                    <!-- Contact page -->
-                    <div class="page-data" data-page="contact">
-                        <div class="contact-page">
-                            <h2>Book Your Session</h2>
-                            <p class="contact-intro">Ready to create your own story in ink?</p>
-                            <div class="contact-details">
-                                <a href="mailto:artist@inkstories.com">artist@inkstories.com</a>
-                                <a href="tel:+1234567890">(123) 456-7890</a>
-                                <div class="social">
-                                    <a href="#">Instagram</a> | <a href="#">Facebook</a>
-                                </div>
-                            </div>
+                            <p>Welcome to my collection of body art.</p>
+                            <p>Each piece tells a unique story, crafted with passion and precision.</p>
+                            <p class="instruction">← Hover over the page edges to turn →</p>
                         </div>
                     </div>
                 </div>
@@ -128,6 +50,76 @@
                 <div class="stack-page stack-6"></div>
                 <div class="stack-page stack-7"></div>
                 <div class="stack-page stack-8"></div>
+            </div>
+            
+            <!-- Page counter -->
+            <div class="page-counter">
+                <span id="currentPageNum">Cover</span>
+            </div>
+        </div>
+        
+        <!-- Hidden page content -->
+        <div class="hidden-content" style="display: none;">
+            <div class="page-template" data-page="1">
+                <img src="https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=900" alt="Dragon Sleeve">
+                <h3>Dragon Sleeve</h3>
+                <p>Traditional Japanese style dragon sleeve with cherry blossoms</p>
+            </div>
+            
+            <div class="page-template" data-page="2">
+                <img src="https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?w=900" alt="Geometric Wolf">
+                <h3>Geometric Wolf</h3>
+                <p>Modern geometric design with intricate line work</p>
+            </div>
+            
+            <div class="page-template" data-page="3">
+                <img src="https://images.unsplash.com/photo-1567056602606-6172dedda3ac?w=900" alt="Floral Mandala">
+                <h3>Floral Mandala</h3>
+                <p>Detailed mandala with botanical elements</p>
+            </div>
+            
+            <div class="page-template" data-page="4">
+                <img src="https://images.unsplash.com/photo-1582201957428-5ff47ff7605b?w=900" alt="Watercolor Phoenix">
+                <h3>Watercolor Phoenix</h3>
+                <p>Vibrant watercolor style phoenix rising</p>
+            </div>
+            
+            <div class="page-template" data-page="5">
+                <img src="https://images.unsplash.com/photo-1604374279907-63f9c036e524?w=900" alt="Blackwork Portrait">
+                <h3>Blackwork Portrait</h3>
+                <p>Realistic portrait in bold blackwork style</p>
+            </div>
+            
+            <div class="page-template" data-page="6">
+                <img src="https://images.unsplash.com/photo-1552627019-947c3789ffb5?w=900" alt="Minimalist Lines">
+                <h3>Minimalist Lines</h3>
+                <p>Elegant minimalist design with single line technique</p>
+            </div>
+            
+            <div class="page-template" data-page="7">
+                <img src="https://images.unsplash.com/photo-1565058379802-bbe93b2f703a?w=900" alt="Cosmic Sleeve">
+                <h3>Cosmic Sleeve</h3>
+                <p>Galaxy-themed sleeve with nebulas and constellations</p>
+            </div>
+            
+            <div class="page-template" data-page="8">
+                <img src="https://images.unsplash.com/photo-1596401057633-54a8080c92b5?w=900" alt="Bio-mechanical">
+                <h3>Bio-mechanical Art</h3>
+                <p>Fusion of organic and mechanical elements</p>
+            </div>
+            
+            <div class="page-template" data-page="contact">
+                <div class="contact-content">
+                    <h2>Book Your Session</h2>
+                    <p class="contact-intro">Ready to create your own story in ink?</p>
+                    <div class="contact-details">
+                        <a href="mailto:artist@inkstories.com">artist@inkstories.com</a>
+                        <a href="tel:+1234567890">(123) 456-7890</a>
+                        <div class="social">
+                            <a href="#">Instagram</a> | <a href="#">Facebook</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
