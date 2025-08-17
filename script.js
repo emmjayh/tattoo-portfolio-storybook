@@ -26,11 +26,22 @@ class BookGallery {
         // Load page content
         this.loadPages();
         
+        // Initialize both pages with proper content
+        this.initializePages();
+        
         // Initialize stacks
         this.updateStacks();
         
         // Bind events
         this.bindEvents();
+    }
+    
+    initializePages() {
+        // Set up initial page content
+        // Right page shows cover/first page
+        this.rightPage.innerHTML = `<div class="page-inner">${this.pages[0].content}</div>`;
+        // Left page is initially blank (no previous page)
+        this.leftPage.innerHTML = '<div class="page-inner"></div>';
     }
     
     loadPages() {
@@ -159,8 +170,8 @@ class BookGallery {
                 this.flippingPage.style.transform = 'rotateY(-180deg)';
                 
                 setTimeout(() => {
-                    // Move flipped page to left side
-                    this.leftPage.innerHTML = `<div class="page-inner page-back">${this.getBackPageContent(this.currentPage - 1)}</div>`;
+                    // Update left page with the content that was just on the right
+                    this.leftPage.innerHTML = `<div class="page-inner">${this.getLeftPageContent(this.currentPage)}</div>`;
                     this.rightPage.style.visibility = 'visible';
                     
                     // Clean up
@@ -189,13 +200,9 @@ class BookGallery {
             this.flippingPage.style.transformOrigin = 'right center';
             this.flippingPage.classList.add('left-page');
             
-            // Update left page with new back content
+            // Update left page with previous content
             this.leftPage.style.visibility = 'hidden';
-            if (this.currentPage > 0) {
-                this.leftPage.innerHTML = `<div class="page-inner page-back">${this.getBackPageContent(this.currentPage - 1)}</div>`;
-            } else {
-                this.leftPage.innerHTML = '<div class="page-inner"></div>';
-            }
+            this.leftPage.innerHTML = `<div class="page-inner">${this.getLeftPageContent(this.currentPage)}</div>`;
             
             // Animate the flip back
             setTimeout(() => {
@@ -221,15 +228,18 @@ class BookGallery {
         }
     }
     
-    getBackPageContent(pageNum) {
-        // Return decorative back page content
-        if (pageNum < 0) return '';
-        return `
-            <div class="back-page-design">
-                <div class="page-number-back">Page ${pageNum + 1}</div>
-                <div class="decorative-pattern"></div>
-            </div>
-        `;
+    getLeftPageContent(pageNum) {
+        // Return actual previous page content or blank for first page
+        if (pageNum <= 0) {
+            return ''; // Blank left page at beginning
+        }
+        
+        // Show the previous page's actual content on the left
+        const prevPage = this.pages[pageNum - 1];
+        if (prevPage) {
+            return prevPage.content;
+        }
+        return '';
     }
     
     updateStacks() {
