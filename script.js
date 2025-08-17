@@ -143,8 +143,9 @@ class BookGallery {
             // Set up the flipping page with current right content
             this.flippingPage.innerHTML = this.rightPage.innerHTML;
             this.flippingPage.style.display = 'block';
-            this.flippingPage.style.right = '2%';
+            this.flippingPage.style.right = '0';
             this.flippingPage.style.left = 'auto';
+            this.flippingPage.style.width = '50%';
             this.flippingPage.style.transformOrigin = 'left center';
             this.flippingPage.classList.add('right-page');
             
@@ -181,8 +182,9 @@ class BookGallery {
             // Set up the flipping page with current left content
             this.flippingPage.innerHTML = this.leftPage.innerHTML;
             this.flippingPage.style.display = 'block';
-            this.flippingPage.style.left = '2%';
+            this.flippingPage.style.left = '0';
             this.flippingPage.style.right = 'auto';
+            this.flippingPage.style.width = '50%';
             this.flippingPage.style.transform = 'rotateY(-180deg)';
             this.flippingPage.style.transformOrigin = 'right center';
             this.flippingPage.classList.add('left-page');
