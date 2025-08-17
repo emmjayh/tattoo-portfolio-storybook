@@ -169,36 +169,50 @@ class BookGallery {
             // Turning pages forward (flip right page over to left)
             this.currentSpread++;
             
-            // Set up the flipping page with current right content
+            // Create two flipping elements for smooth animation
+            // First: the current right page that will flip
             this.flippingPage.innerHTML = this.rightPage.innerHTML;
             this.flippingPage.style.display = 'block';
             this.flippingPage.style.right = '0';
             this.flippingPage.style.left = 'auto';
             this.flippingPage.style.width = '50%';
+            this.flippingPage.style.transform = 'rotateY(0deg)';
             this.flippingPage.style.transformOrigin = 'left center';
+            this.flippingPage.style.zIndex = '100';
             this.flippingPage.classList.add('right-page');
             
-            // Hide right page and prepare new content
+            // Update the pages underneath with new content immediately
+            const nextLeftContent = this.pages[this.currentSpread * 2] ? this.pages[this.currentSpread * 2].content : '';
+            const nextRightContent = this.pages[this.currentSpread * 2 + 1] ? this.pages[this.currentSpread * 2 + 1].content : '';
+            
+            // Set the new left page content (what the flipping page will become)
+            this.leftPage.innerHTML = `<div class="page-inner">${nextLeftContent}</div>`;
+            this.leftPage.style.visibility = 'visible';
+            
+            // Hide right page temporarily
             this.rightPage.style.visibility = 'hidden';
             
-            // Animate the flip
-            setTimeout(() => {
-                this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            // Animate the flip smoothly
+            requestAnimationFrame(() => {
+                this.flippingPage.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(-180deg)';
                 
+                // When flip reaches halfway, update right page
                 setTimeout(() => {
-                    // Update both pages with new spread content
-                    this.updateSpread();
-                    
-                    // Clean up
+                    this.rightPage.innerHTML = `<div class="page-inner">${nextRightContent}</div>`;
+                    this.rightPage.style.visibility = 'visible';
+                }, 500);
+                
+                // Clean up after animation completes
+                setTimeout(() => {
                     this.flippingPage.style.display = 'none';
                     this.flippingPage.style.transform = '';
                     this.flippingPage.style.transition = '';
                     this.flippingPage.classList.remove('right-page');
-                    
+                    this.updateCounter();
                     this.isAnimating = false;
-                }, 800);
-            }, 50);
+                }, 1000);
+            });
             
         } else {
             // Turning pages backward (flip left page back to right)
@@ -212,29 +226,41 @@ class BookGallery {
             this.flippingPage.style.width = '50%';
             this.flippingPage.style.transform = 'rotateY(-180deg)';
             this.flippingPage.style.transformOrigin = 'right center';
+            this.flippingPage.style.zIndex = '100';
             this.flippingPage.classList.add('left-page');
             
-            // Hide left page
+            // Update the pages underneath with new content immediately
+            const prevLeftContent = this.pages[this.currentSpread * 2] ? this.pages[this.currentSpread * 2].content : '';
+            const prevRightContent = this.pages[this.currentSpread * 2 + 1] ? this.pages[this.currentSpread * 2 + 1].content : '';
+            
+            // Set the new right page content (what the flipping page will become)
+            this.rightPage.innerHTML = `<div class="page-inner">${prevRightContent}</div>`;
+            this.rightPage.style.visibility = 'visible';
+            
+            // Hide left page temporarily
             this.leftPage.style.visibility = 'hidden';
             
-            // Animate the flip back
-            setTimeout(() => {
-                this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            // Animate the flip back smoothly
+            requestAnimationFrame(() => {
+                this.flippingPage.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(0deg)';
                 
+                // When flip reaches halfway, update left page
                 setTimeout(() => {
-                    // Update both pages with new spread content
-                    this.updateSpread();
-                    
-                    // Clean up
+                    this.leftPage.innerHTML = `<div class="page-inner">${prevLeftContent}</div>`;
+                    this.leftPage.style.visibility = 'visible';
+                }, 500);
+                
+                // Clean up after animation completes
+                setTimeout(() => {
                     this.flippingPage.style.display = 'none';
                     this.flippingPage.style.transform = '';
                     this.flippingPage.style.transition = '';
                     this.flippingPage.classList.remove('left-page');
-                    
+                    this.updateCounter();
                     this.isAnimating = false;
-                }, 800);
-            }, 50);
+                }, 1000);
+            });
         }
     }
     
