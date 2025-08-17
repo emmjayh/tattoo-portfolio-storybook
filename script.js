@@ -1,49 +1,77 @@
-// Gallery State Management
-class TattooGallery {
+// Fullscreen Book Gallery
+class FullscreenBookGallery {
     constructor() {
-        this.currentPage = 1;
-        this.totalPages = 6;
+        this.currentSpread = 0; // 0 = cover, 1 = pages 2-3, 2 = pages 4-5, etc.
+        this.totalSpreads = 5; // Cover + 4 spreads of content + contact
         this.isAnimating = false;
         this.hoverTimeout = null;
-        this.hoverDelay = 1500; // 1.5 seconds hover delay
+        this.hoverDelay = 1200; // 1.2 seconds hover delay
+        this.pageData = [];
         
         this.init();
     }
     
     init() {
         // Cache DOM elements
-        this.pages = document.querySelectorAll('.page');
-        this.prevBtn = document.getElementById('prevBtn');
-        this.nextBtn = document.getElementById('nextBtn');
-        this.hoverPrev = document.getElementById('hoverPrev');
-        this.hoverNext = document.getElementById('hoverNext');
-        this.currentPageDisplay = document.getElementById('currentPage');
-        this.totalPagesDisplay = document.getElementById('totalPages');
+        this.leftPage = document.getElementById('leftPage');
+        this.rightPage = document.getElementById('rightPage');
+        this.hoverLeft = document.getElementById('hoverLeft');
+        this.hoverRight = document.getElementById('hoverRight');
+        this.leftStack = document.getElementById('leftStack');
+        this.rightStack = document.getElementById('rightStack');
         
-        // Set initial state
-        this.totalPagesDisplay.textContent = this.totalPages;
-        this.updatePageDisplay();
+        // Load page data
+        this.loadPageData();
+        
+        // Update stack visualization
+        this.updateStacks();
         
         // Bind events
         this.bindEvents();
     }
     
+    loadPageData() {
+        // Collect all page data from hidden pages
+        const pages = document.querySelectorAll('.page-data');
+        pages.forEach(page => {
+            const pageNum = page.dataset.page;
+            const img = page.querySelector('img');
+            const h3 = page.querySelector('h3');
+            const p = page.querySelector('p');
+            
+            if (pageNum === 'contact') {
+                this.pageData.push({
+                    type: 'contact',
+                    content: page.querySelector('.contact-page').innerHTML
+                });
+            } else {
+                this.pageData.push({
+                    type: 'gallery',
+                    img: img ? img.outerHTML : '',
+                    title: h3 ? h3.textContent : '',
+                    description: p ? p.textContent : '',
+                    pageNum: pageNum
+                });
+            }
+        });
+    }
+    
     bindEvents() {
-        // Arrow button clicks
-        this.prevBtn.addEventListener('click', () => this.previousPage());
-        this.nextBtn.addEventListener('click', () => this.nextPage());
-        
         // Hover zones with delay
-        this.hoverPrev.addEventListener('mouseenter', () => this.startHoverTimer('prev'));
-        this.hoverPrev.addEventListener('mouseleave', () => this.cancelHoverTimer());
+        this.hoverLeft.addEventListener('mouseenter', () => this.startHoverTimer('prev'));
+        this.hoverLeft.addEventListener('mouseleave', () => this.cancelHoverTimer());
         
-        this.hoverNext.addEventListener('mouseenter', () => this.startHoverTimer('next'));
-        this.hoverNext.addEventListener('mouseleave', () => this.cancelHoverTimer());
+        this.hoverRight.addEventListener('mouseenter', () => this.startHoverTimer('next'));
+        this.hoverRight.addEventListener('mouseleave', () => this.cancelHoverTimer());
+        
+        // Click for instant page turn
+        this.hoverLeft.addEventListener('click', () => this.previousPage());
+        this.hoverRight.addEventListener('click', () => this.nextPage());
         
         // Keyboard navigation
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
         
-        // Touch/swipe support for mobile
+        // Touch/swipe support
         this.addTouchSupport();
     }
     
@@ -51,11 +79,11 @@ class TattooGallery {
         // Clear any existing timer
         this.cancelHoverTimer();
         
-        // Visual feedback - show hover effect immediately
+        // Visual feedback
         if (direction === 'prev') {
-            this.hoverPrev.style.opacity = '1';
+            this.hoverLeft.style.background = 'linear-gradient(to right, rgba(212, 175, 55, 0.08), transparent)';
         } else {
-            this.hoverNext.style.opacity = '1';
+            this.hoverRight.style.background = 'linear-gradient(to left, rgba(212, 175, 55, 0.08), transparent)';
         }
         
         // Start timer for page flip
@@ -74,101 +102,156 @@ class TattooGallery {
             this.hoverTimeout = null;
         }
         
-        // Hide hover effects
-        this.hoverPrev.style.opacity = '';
-        this.hoverNext.style.opacity = '';
+        // Remove visual feedback
+        this.hoverLeft.style.background = '';
+        this.hoverRight.style.background = '';
     }
     
     previousPage() {
-        if (this.isAnimating || this.currentPage === 1) return;
+        if (this.isAnimating || this.currentSpread === 0) return;
         
         this.isAnimating = true;
-        const currentPageEl = this.pages[this.currentPage - 1];
-        const prevPageEl = this.pages[this.currentPage - 2];
+        this.currentSpread--;
         
-        // Animate page flip
-        currentPageEl.classList.add('flipping-out');
-        currentPageEl.classList.remove('active');
+        // Animate right page turning back
+        this.rightPage.classList.add('page-turning-back');
         
         setTimeout(() => {
-            currentPageEl.classList.remove('flipping-out');
-            prevPageEl.classList.add('flipping-in', 'active');
+            this.updatePageContent();
+            this.rightPage.classList.remove('page-turning-back');
+            
+            // Update stacks
+            this.updateStacks();
             
             setTimeout(() => {
-                prevPageEl.classList.remove('flipping-in');
                 this.isAnimating = false;
-            }, 800);
-        }, 100);
-        
-        this.currentPage--;
-        this.updatePageDisplay();
-        this.updateButtonStates();
+            }, 100);
+        }, 600);
     }
     
     nextPage() {
-        if (this.isAnimating || this.currentPage === this.totalPages) return;
+        if (this.isAnimating || this.currentSpread >= this.totalSpreads - 1) return;
         
         this.isAnimating = true;
-        const currentPageEl = this.pages[this.currentPage - 1];
-        const nextPageEl = this.pages[this.currentPage];
         
-        // Animate page flip
-        currentPageEl.classList.add('flipping-out');
-        currentPageEl.classList.remove('active');
+        // Animate right page turning forward
+        this.rightPage.classList.add('page-turning');
         
         setTimeout(() => {
-            currentPageEl.classList.remove('flipping-out');
-            nextPageEl.classList.add('flipping-in', 'active');
+            this.currentSpread++;
+            this.updatePageContent();
+            this.rightPage.classList.remove('page-turning');
+            
+            // Update stacks
+            this.updateStacks();
             
             setTimeout(() => {
-                nextPageEl.classList.remove('flipping-in');
                 this.isAnimating = false;
-            }, 800);
-        }, 100);
-        
-        this.currentPage++;
-        this.updatePageDisplay();
-        this.updateButtonStates();
+            }, 100);
+        }, 600);
     }
     
-    goToPage(pageNumber) {
-        if (this.isAnimating || pageNumber === this.currentPage) return;
-        if (pageNumber < 1 || pageNumber > this.totalPages) return;
+    updatePageContent() {
+        // Update left page
+        if (this.currentSpread === 0) {
+            // Cover page on left
+            this.leftPage.innerHTML = `
+                <div class="page-inner">
+                    <div class="page-header">
+                        <h1 class="portfolio-title">Ink Stories</h1>
+                        <p class="portfolio-subtitle">Tattoo Artistry Portfolio</p>
+                    </div>
+                    <div class="welcome-content">
+                        <p>Welcome to my collection of body art. Each piece tells a unique story, crafted with passion and precision.</p>
+                        <p class="instruction">Hover over the page edges to turn →</p>
+                    </div>
+                    <div class="page-number">Cover</div>
+                </div>
+            `;
+        } else {
+            // Content pages on left (even numbers)
+            const leftPageIndex = (this.currentSpread - 1) * 2;
+            if (leftPageIndex < this.pageData.length) {
+                const pageInfo = this.pageData[leftPageIndex];
+                if (pageInfo.type === 'gallery') {
+                    this.leftPage.innerHTML = `
+                        <div class="page-inner">
+                            <div class="page-content">
+                                ${pageInfo.img}
+                                <div class="page-info">
+                                    <h3>${pageInfo.title}</h3>
+                                    <p>${pageInfo.description}</p>
+                                </div>
+                            </div>
+                            <div class="page-number">${leftPageIndex + 2}</div>
+                        </div>
+                    `;
+                }
+            }
+        }
         
-        this.isAnimating = true;
-        const currentPageEl = this.pages[this.currentPage - 1];
-        const targetPageEl = this.pages[pageNumber - 1];
-        
-        // Hide current page
-        currentPageEl.classList.add('flipping-out');
-        currentPageEl.classList.remove('active');
-        
-        setTimeout(() => {
-            currentPageEl.classList.remove('flipping-out');
-            targetPageEl.classList.add('flipping-in', 'active');
-            
-            setTimeout(() => {
-                targetPageEl.classList.remove('flipping-in');
-                this.isAnimating = false;
-            }, 800);
-        }, 100);
-        
-        this.currentPage = pageNumber;
-        this.updatePageDisplay();
-        this.updateButtonStates();
+        // Update right page
+        if (this.currentSpread === 0) {
+            // First tattoo on right when showing cover
+            const pageInfo = this.pageData[0];
+            this.rightPage.innerHTML = `
+                <div class="page-inner">
+                    <div class="page-content">
+                        ${pageInfo.img}
+                        <div class="page-info">
+                            <h3>${pageInfo.title}</h3>
+                            <p>${pageInfo.description}</p>
+                        </div>
+                    </div>
+                    <div class="page-number">1</div>
+                </div>
+            `;
+        } else {
+            // Content pages on right (odd numbers)
+            const rightPageIndex = (this.currentSpread - 1) * 2 + 1;
+            if (rightPageIndex < this.pageData.length) {
+                const pageInfo = this.pageData[rightPageIndex];
+                if (pageInfo.type === 'gallery') {
+                    this.rightPage.innerHTML = `
+                        <div class="page-inner">
+                            <div class="page-content">
+                                ${pageInfo.img}
+                                <div class="page-info">
+                                    <h3>${pageInfo.title}</h3>
+                                    <p>${pageInfo.description}</p>
+                                </div>
+                            </div>
+                            <div class="page-number">${rightPageIndex + 2}</div>
+                        </div>
+                    `;
+                } else if (pageInfo.type === 'contact') {
+                    this.rightPage.innerHTML = `
+                        <div class="page-inner">
+                            ${pageInfo.content}
+                            <div class="page-number">Contact</div>
+                        </div>
+                    `;
+                }
+            }
+        }
     }
     
-    updatePageDisplay() {
-        this.currentPageDisplay.textContent = this.currentPage;
-    }
-    
-    updateButtonStates() {
-        // Disable/enable navigation based on current page
-        this.prevBtn.style.opacity = this.currentPage === 1 ? '0.3' : '1';
-        this.prevBtn.style.pointerEvents = this.currentPage === 1 ? 'none' : 'auto';
+    updateStacks() {
+        // Update left stack (pages already read)
+        const leftStackCount = Math.min(this.currentSpread, 5);
+        const leftStackHTML = [];
+        for (let i = 0; i < leftStackCount; i++) {
+            leftStackHTML.push(`<div class="stack-page stack-${i + 1}"></div>`);
+        }
+        this.leftStack.innerHTML = leftStackHTML.join('');
         
-        this.nextBtn.style.opacity = this.currentPage === this.totalPages ? '0.3' : '1';
-        this.nextBtn.style.pointerEvents = this.currentPage === this.totalPages ? 'none' : 'auto';
+        // Update right stack (pages remaining)
+        const rightStackCount = Math.min(this.totalSpreads - this.currentSpread - 1, 8);
+        const rightStackHTML = [];
+        for (let i = 0; i < rightStackCount; i++) {
+            rightStackHTML.push(`<div class="stack-page stack-${i + 1}"></div>`);
+        }
+        this.rightStack.innerHTML = rightStackHTML.join('');
     }
     
     handleKeyboard(e) {
@@ -176,8 +259,6 @@ class TattooGallery {
             this.previousPage();
         } else if (e.key === 'ArrowRight') {
             this.nextPage();
-        } else if (e.key >= '1' && e.key <= '6') {
-            this.goToPage(parseInt(e.key));
         }
     }
     
@@ -189,12 +270,12 @@ class TattooGallery {
         
         bookContainer.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
-        });
+        }, { passive: true });
         
         bookContainer.addEventListener('touchend', (e) => {
             touchEndX = e.changedTouches[0].screenX;
             this.handleSwipe();
-        });
+        }, { passive: true });
         
         const handleSwipe = () => {
             const swipeThreshold = 50;
@@ -215,22 +296,22 @@ class TattooGallery {
     }
 }
 
-// Initialize gallery when DOM is ready
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    const gallery = new TattooGallery();
+    const gallery = new FullscreenBookGallery();
     
-    // Add smooth loading animation
+    // Add initial load animation
     setTimeout(() => {
-        document.querySelector('.portfolio-container').style.opacity = '1';
+        document.querySelector('.fullscreen-book').style.opacity = '1';
     }, 100);
 });
 
-// Add CSS for smooth loading
+// Add CSS for initial load
 document.head.insertAdjacentHTML('beforeend', `
     <style>
-        .portfolio-container {
+        .fullscreen-book {
             opacity: 0;
-            transition: opacity 1s ease-in;
+            transition: opacity 1.5s ease-in;
         }
     </style>
 `);

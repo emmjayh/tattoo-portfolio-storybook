@@ -3,7 +3,9 @@
     "allow": [
       "Bash(git init:*)",
       "Bash(npm install)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git config:*)",
+      "Bash(gh repo create:*)"
     ],
     "deny": [],
     "ask": []
