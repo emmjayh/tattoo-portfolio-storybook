@@ -1,4 +1,4 @@
-// Simple Book Gallery
+// Book Gallery with Two-Page Spread
 class BookGallery {
     constructor() {
         this.currentPage = 0;
@@ -13,7 +13,9 @@ class BookGallery {
     
     init() {
         // Cache DOM elements
-        this.currentPageEl = document.getElementById('currentPage');
+        this.leftPage = document.getElementById('leftPage');
+        this.rightPage = document.getElementById('rightPage');
+        this.flippingPage = document.getElementById('flippingPage');
         this.hoverLeft = document.getElementById('hoverLeft');
         this.hoverRight = document.getElementById('hoverRight');
         this.leftStack = document.getElementById('leftStack');
@@ -134,62 +136,98 @@ class BookGallery {
         
         this.isAnimating = true;
         
-        const oldPage = this.currentPageEl;
-        const newPage = document.createElement('div');
-        newPage.className = 'page';
-        newPage.style.visibility = 'hidden';
-        
         if (direction === 'next') {
+            // Turning page forward
             this.currentPage++;
             
-            // Set new page content
-            newPage.innerHTML = `<div class="page-inner">${this.pages[this.currentPage].content}</div>`;
-            this.book.appendChild(newPage);
+            // Set up the flipping page with current right content
+            this.flippingPage.innerHTML = this.rightPage.innerHTML;
+            this.flippingPage.style.display = 'block';
+            this.flippingPage.style.right = '2%';
+            this.flippingPage.style.left = 'auto';
+            this.flippingPage.style.transformOrigin = 'left center';
+            this.flippingPage.classList.add('right-page');
             
-            // Animate old page flipping away
-            oldPage.classList.add('page-flip-right');
+            // Update right page with new content immediately but hidden
+            this.rightPage.style.visibility = 'hidden';
+            this.rightPage.innerHTML = `<div class="page-inner">${this.pages[this.currentPage].content}</div>`;
             
+            // Animate the flip
             setTimeout(() => {
-                newPage.style.visibility = 'visible';
-                newPage.classList.add('page-flip-left');
+                this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.flippingPage.style.transform = 'rotateY(-180deg)';
                 
                 setTimeout(() => {
-                    oldPage.remove();
-                    newPage.classList.remove('page-flip-left');
-                    newPage.id = 'currentPage';
-                    this.currentPageEl = newPage;
+                    // Move flipped page to left side
+                    this.leftPage.innerHTML = `<div class="page-inner page-back">${this.getBackPageContent(this.currentPage - 1)}</div>`;
+                    this.rightPage.style.visibility = 'visible';
+                    
+                    // Clean up
+                    this.flippingPage.style.display = 'none';
+                    this.flippingPage.style.transform = '';
+                    this.flippingPage.style.transition = '';
+                    this.flippingPage.classList.remove('right-page');
+                    
                     this.isAnimating = false;
                     this.updateStacks();
                     this.updateCounter();
                 }, 800);
-            }, 100);
+            }, 50);
             
         } else {
+            // Turning page backward
             this.currentPage--;
             
-            // Set new page content
-            newPage.innerHTML = `<div class="page-inner">${this.pages[this.currentPage].content}</div>`;
-            newPage.style.transform = 'rotateY(-180deg)';
-            this.book.appendChild(newPage);
+            // Set up the flipping page with current left content
+            this.flippingPage.innerHTML = this.leftPage.innerHTML;
+            this.flippingPage.style.display = 'block';
+            this.flippingPage.style.left = '2%';
+            this.flippingPage.style.right = 'auto';
+            this.flippingPage.style.transform = 'rotateY(-180deg)';
+            this.flippingPage.style.transformOrigin = 'right center';
+            this.flippingPage.classList.add('left-page');
             
+            // Update left page with new back content
+            this.leftPage.style.visibility = 'hidden';
+            if (this.currentPage > 0) {
+                this.leftPage.innerHTML = `<div class="page-inner page-back">${this.getBackPageContent(this.currentPage - 1)}</div>`;
+            } else {
+                this.leftPage.innerHTML = '<div class="page-inner"></div>';
+            }
+            
+            // Animate the flip back
             setTimeout(() => {
-                newPage.style.visibility = 'visible';
-                newPage.classList.add('page-flip-left');
-                oldPage.style.zIndex = '5';
+                this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.flippingPage.style.transform = 'rotateY(0deg)';
                 
                 setTimeout(() => {
-                    oldPage.remove();
-                    newPage.classList.remove('page-flip-left');
-                    newPage.id = 'currentPage';
-                    newPage.style.transform = '';
-                    newPage.style.zIndex = '';
-                    this.currentPageEl = newPage;
+                    // Update right page with previous content
+                    this.rightPage.innerHTML = `<div class="page-inner">${this.pages[this.currentPage].content}</div>`;
+                    this.leftPage.style.visibility = 'visible';
+                    
+                    // Clean up
+                    this.flippingPage.style.display = 'none';
+                    this.flippingPage.style.transform = '';
+                    this.flippingPage.style.transition = '';
+                    this.flippingPage.classList.remove('left-page');
+                    
                     this.isAnimating = false;
                     this.updateStacks();
                     this.updateCounter();
                 }, 800);
-            }, 100);
+            }, 50);
         }
+    }
+    
+    getBackPageContent(pageNum) {
+        // Return decorative back page content
+        if (pageNum < 0) return '';
+        return `
+            <div class="back-page-design">
+                <div class="page-number-back">Page ${pageNum + 1}</div>
+                <div class="decorative-pattern"></div>
+            </div>
+        `;
     }
     
     updateStacks() {
@@ -259,6 +297,59 @@ document.head.insertAdjacentHTML('beforeend', `
         .fullscreen-book {
             opacity: 0;
             transition: opacity 1s ease-in;
+        }
+        
+        /* Back page styling */
+        .page-back {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .back-page-design {
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .page-number-back {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            font-size: 0.9rem;
+            color: #999;
+            font-style: italic;
+        }
+        
+        .decorative-pattern {
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .decorative-pattern::before,
+        .decorative-pattern::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba(212, 175, 55, 0.05);
+            border-radius: 50%;
+        }
+        
+        .decorative-pattern::before {
+            transform: scale(0.8);
+        }
+        
+        .decorative-pattern::after {
+            transform: scale(0.6);
         }
     </style>
 `);

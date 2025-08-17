@@ -32,10 +32,17 @@
             <!-- Center book spine -->
             <div class="book-spine"></div>
             
-            <!-- Main book with single visible page -->
+            <!-- Main book spread with two pages -->
             <div class="book" id="book">
-                <!-- Current visible page -->
-                <div class="page current-page" id="currentPage" data-page="0">
+                <!-- Left page (back of previous or blank) -->
+                <div class="page left-page" id="leftPage">
+                    <div class="page-inner">
+                        <!-- Initially empty/blank -->
+                    </div>
+                </div>
+                
+                <!-- Right page (current content) -->
+                <div class="page right-page current-page" id="rightPage" data-page="0">
                     <div class="page-inner">
                         <div class="page-header">
                             <h1 class="portfolio-title">Ink Stories</h1>
@@ -47,6 +54,11 @@
                             <p class="instruction">← Hover over the page edges to turn →</p>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Flipping page (for animation) -->
+                <div class="page flipping-page" id="flippingPage" style="display: none;">
+                    <div class="page-inner"></div>
                 </div>
                 
                 <!-- Hover zones for page flipping -->
