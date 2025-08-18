@@ -108,27 +108,29 @@ class BookSpread {
                 ">
                     <img src="images/0_Frontpage.png" alt="Carla Portfolio - Tattoo Artistry & Design Cover" style="
                         width: 100%;
-                        height: 100%;
+                        height: calc(100% - 40px);
                         object-fit: cover;
                         position: absolute;
-                        top: 0;
+                        top: 40px;
                         left: 0;
                         z-index: 1;
                     ">
                     <div style="
                         position: absolute;
-                        bottom: 20px;
+                        bottom: 30px;
                         left: 0;
                         right: 0;
-                        padding: 20px;
-                        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+                        padding: 25px;
+                        background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7) 50%, transparent);
                         z-index: 2;
                     ">
                         <p style="
-                            color: rgba(255,255,255,0.9);
-                            font-size: 0.9rem;
+                            color: rgba(255,255,255,0.95);
+                            font-size: 1.1rem;
                             font-style: italic;
                             margin: 0;
+                            text-align: center;
+                            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
                         ">Carla Portfolio - Tattoo Artistry & Design</p>
                     </div>
                 </div>
@@ -732,6 +734,10 @@ class BookSpread {
         `;
         document.body.appendChild(this.imageOverlay);
         
+        // Track hover timeout for image expansion
+        this.imageHoverTimeout = null;
+        this.currentHoveredImage = null;
+        
         // Handle image hover events using delegation
         document.addEventListener('mouseover', (e) => {
             // Check if hovering over a gallery image (not thumbnails or cover images)
@@ -739,7 +745,33 @@ class BookSpread {
             if (img.tagName === 'IMG' && 
                 img.closest('.gallery-content') && 
                 !img.closest('.cover-thumbnail')) {
-                this.expandImage(img);
+                // Clear any existing timeout
+                if (this.imageHoverTimeout) {
+                    clearTimeout(this.imageHoverTimeout);
+                }
+                this.currentHoveredImage = img;
+                // Set 1 second delay before expanding
+                this.imageHoverTimeout = setTimeout(() => {
+                    if (this.currentHoveredImage === img) {
+                        this.expandImage(img);
+                    }
+                }, 1000);
+            }
+        });
+        
+        // Cancel expansion on mouse leave
+        document.addEventListener('mouseout', (e) => {
+            const img = e.target;
+            if (img.tagName === 'IMG' && 
+                img.closest('.gallery-content') && 
+                !img.closest('.cover-thumbnail')) {
+                if (this.imageHoverTimeout) {
+                    clearTimeout(this.imageHoverTimeout);
+                    this.imageHoverTimeout = null;
+                }
+                if (this.currentHoveredImage === img) {
+                    this.currentHoveredImage = null;
+                }
             }
         });
         
