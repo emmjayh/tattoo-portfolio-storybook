@@ -8,6 +8,8 @@ class BookGallery {
         this.hoverDelay = 1000; // 1 second hover delay
         this.pages = [];
         this.preloadedContent = {}; // Smart content cache
+        this.imageCache = new Map(); // Image preload cache
+        this.renderedPages = new Map(); // Pre-rendered page HTML cache
         
         this.init();
     }
@@ -25,14 +27,54 @@ class BookGallery {
         // Load page content
         this.loadPages();
         
-        // Initialize both pages with proper content
-        this.updateSpread();
+        // Preload all images first
+        this.preloadAllImages().then(() => {
+            // Initialize both pages with proper content
+            this.updateSpread();
+            
+            // Pre-render all pages for instant switching
+            this.prerenderAllPages();
+            
+            // Preload adjacent pages for smoother transitions
+            this.preloadAdjacentPages();
+            
+            // Bind events
+            this.bindEvents();
+        });
+    }
+    
+    async preloadAllImages() {
+        // Extract all image URLs from the templates
+        const images = document.querySelectorAll('.page-template img');
+        const imagePromises = [];
         
-        // Preload adjacent pages for smoother transitions
-        this.preloadAdjacentPages();
+        images.forEach(img => {
+            if (img.src) {
+                const promise = new Promise((resolve, reject) => {
+                    const newImg = new Image();
+                    newImg.onload = () => {
+                        this.imageCache.set(img.src, newImg);
+                        resolve();
+                    };
+                    newImg.onerror = reject;
+                    newImg.src = img.src;
+                });
+                imagePromises.push(promise);
+            }
+        });
         
-        // Bind events
-        this.bindEvents();
+        await Promise.all(imagePromises);
+    }
+    
+    prerenderAllPages() {
+        // Pre-render all pages and cache them
+        this.pages.forEach((page, index) => {
+            const pageElement = document.createElement('div');
+            pageElement.className = 'page-inner';
+            pageElement.style.background = '#fdfdf8';
+            pageElement.innerHTML = page.content;
+            this.renderedPages.set(index, pageElement.outerHTML);
+        });
     }
     
     loadPages() {
@@ -170,14 +212,25 @@ class BookGallery {
         
         if (direction === 'next') {
             // Forward flip: right page flips to left
-            const nextLeftContent = this.pages[this.currentSpread * 2 + 2] ? this.pages[this.currentSpread * 2 + 2].content : '';
-            const nextRightContent = this.pages[this.currentSpread * 2 + 3] ? this.pages[this.currentSpread * 2 + 3].content : '';
+            const nextLeftIndex = this.currentSpread * 2 + 2;
+            const nextRightIndex = this.currentSpread * 2 + 3;
+            const nextLeftContent = this.renderedPages.get(nextLeftIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
+            const nextRightContent = this.renderedPages.get(nextRightIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
+            
+            // Pre-update the underlying pages immediately (hidden)
+            this.leftPage.innerHTML = nextLeftContent;
+            this.rightPage.innerHTML = nextRightContent;
+            this.leftPage.style.opacity = '0';
+            this.rightPage.style.opacity = '0';
+            
+            // Get current right page content before updating
+            const currentRightContent = this.renderedPages.get(this.currentSpread * 2 + 1) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
             
             // Clone the right page for flipping
             this.flippingPage.innerHTML = `
-                <div class="page-inner" style="background: #fdfdf8;">${this.rightPage.querySelector('.page-inner').innerHTML}</div>
+                ${currentRightContent.replace('page-inner', 'page-inner page-front')}
                 <div class="page-back-side" style="background: #f0f0e8;">
-                    <div class="page-inner" style="background: #f0f0e8;">${nextLeftContent}</div>
+                    ${nextLeftContent}
                 </div>
             `;
             this.flippingPage.style.display = 'block';
@@ -198,16 +251,16 @@ class BookGallery {
                 this.flippingPage.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(-180deg)';
                 
-                // Update content halfway through
+                // Show underlying pages halfway through
                 setTimeout(() => {
                     this.currentSpread++;
-                    this.rightPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${nextRightContent}</div>`;
+                    this.leftPage.style.opacity = '1';
+                    this.rightPage.style.opacity = '1';
                     this.rightPage.style.zIndex = '10';
                 }, 500);
                 
                 // Clean up after animation
                 setTimeout(() => {
-                    this.leftPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${nextLeftContent}</div>`;
                     this.leftPage.style.zIndex = '10';
                     this.rightPage.style.zIndex = '10';
                     this.flippingPage.style.display = 'none';
@@ -222,14 +275,25 @@ class BookGallery {
             
         } else {
             // Backward flip: left page flips from left to right
-            const prevLeftContent = this.pages[this.currentSpread * 2 - 2] ? this.pages[this.currentSpread * 2 - 2].content : '';
-            const prevRightContent = this.pages[this.currentSpread * 2 - 1] ? this.pages[this.currentSpread * 2 - 1].content : '';
+            const prevLeftIndex = this.currentSpread * 2 - 2;
+            const prevRightIndex = this.currentSpread * 2 - 1;
+            const prevLeftContent = this.renderedPages.get(prevLeftIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
+            const prevRightContent = this.renderedPages.get(prevRightIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
+            
+            // Pre-update the underlying pages immediately (hidden)
+            this.leftPage.innerHTML = prevLeftContent;
+            this.rightPage.innerHTML = prevRightContent;
+            this.leftPage.style.opacity = '0';
+            this.rightPage.style.opacity = '0';
+            
+            // Get current left page content before updating
+            const currentLeftContent = this.renderedPages.get(this.currentSpread * 2) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
             
             // Set up flipping page as the current left page, starting in normal position
             this.flippingPage.innerHTML = `
-                <div class="page-inner" style="background: #fdfdf8;">${this.leftPage.querySelector('.page-inner').innerHTML}</div>
+                ${currentLeftContent.replace('page-inner', 'page-inner page-front')}
                 <div class="page-back-side" style="background: #f0f0e8;">
-                    <div class="page-inner" style="background: #f0f0e8;">${prevRightContent}</div>
+                    ${prevRightContent}
                 </div>
             `;
             this.flippingPage.style.display = 'block';
@@ -250,16 +314,15 @@ class BookGallery {
                 this.flippingPage.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(180deg)';
                 
-                // Update content halfway through
+                // Show underlying pages halfway through
                 setTimeout(() => {
                     this.currentSpread--;
-                    this.leftPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${prevLeftContent}</div>`;
                     this.leftPage.style.opacity = '1';
+                    this.rightPage.style.opacity = '1';
                 }, 500);
                 
                 // Clean up after animation
                 setTimeout(() => {
-                    this.rightPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${prevRightContent}</div>`;
                     this.leftPage.style.zIndex = '10';
                     this.rightPage.style.zIndex = '10';
                     this.flippingPage.style.display = 'none';
@@ -279,28 +342,32 @@ class BookGallery {
         const leftPageIndex = this.currentSpread * 2;
         const rightPageIndex = this.currentSpread * 2 + 1;
         
-        // Update left page
-        if (leftPageIndex < this.pages.length) {
-            this.leftPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${this.pages[leftPageIndex].content}</div>`;
+        // Update left page using cached content
+        if (leftPageIndex < this.pages.length && this.renderedPages.has(leftPageIndex)) {
+            this.leftPage.innerHTML = this.renderedPages.get(leftPageIndex);
             this.leftPage.style.visibility = 'visible';
             this.leftPage.style.backgroundColor = '#fdfdf8';
+            this.leftPage.style.opacity = '1';
             this.leftPage.style.zIndex = '10';
         } else {
             this.leftPage.innerHTML = '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             this.leftPage.style.visibility = 'visible';
             this.leftPage.style.backgroundColor = '#fdfdf8';
+            this.leftPage.style.opacity = '1';
         }
         
-        // Update right page
-        if (rightPageIndex < this.pages.length) {
-            this.rightPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${this.pages[rightPageIndex].content}</div>`;
+        // Update right page using cached content
+        if (rightPageIndex < this.pages.length && this.renderedPages.has(rightPageIndex)) {
+            this.rightPage.innerHTML = this.renderedPages.get(rightPageIndex);
             this.rightPage.style.visibility = 'visible';
             this.rightPage.style.backgroundColor = '#fdfdf8';
+            this.rightPage.style.opacity = '1';
             this.rightPage.style.zIndex = '10';
         } else {
             this.rightPage.innerHTML = '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             this.rightPage.style.visibility = 'visible';
             this.rightPage.style.backgroundColor = '#fdfdf8';
+            this.rightPage.style.opacity = '1';
         }
         
         // Update page counter
