@@ -334,9 +334,13 @@ class BookGallery {
                     this.rightPage.style.opacity = '1';
                 }, 400);
                 
-                // Clean up after animation
+                // Hide the flipping page shortly after halfway point
                 setTimeout(() => {
                     this.flippingPage.style.display = 'none';
+                }, 500);
+                
+                // Clean up after animation
+                setTimeout(() => {
                     this.flippingPage.style.transform = '';
                     this.flippingPage.style.transition = '';
                     
@@ -406,9 +410,13 @@ class BookGallery {
                     this.leftPage.style.opacity = '1';
                 }, 400);
                 
-                // Clean up after animation
+                // Hide the flipping page shortly after halfway point
                 setTimeout(() => {
                     this.flippingPage.style.display = 'none';
+                }, 500);
+                
+                // Clean up after animation
+                setTimeout(() => {
                     this.flippingPage.style.transform = '';
                     this.flippingPage.style.transition = '';
                     
