@@ -168,6 +168,26 @@ class BookGallery {
             if (e.key === 'ArrowRight') this.turnPage('next');
         });
         
+        // Scroll wheel support
+        let scrollTimeout = null;
+        this.book.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            
+            // Debounce scroll events
+            if (scrollTimeout) return;
+            
+            scrollTimeout = setTimeout(() => {
+                scrollTimeout = null;
+            }, 500);
+            
+            // Scroll down = next page, scroll up = previous page
+            if (e.deltaY > 0) {
+                this.turnPage('next');
+            } else if (e.deltaY < 0) {
+                this.turnPage('prev');
+            }
+        }, { passive: false });
+        
         // Touch support
         this.addTouchSupport();
     }
@@ -452,11 +472,8 @@ class BookGallery {
     }
 }
 
-// Initialize when ready
-document.addEventListener('DOMContentLoaded', () => {
-    const gallery = new BookGallery();
-    // No fade in - show immediately
-});
+// Initialize immediately when script loads
+const gallery = new BookGallery();
 
 // Add initial CSS
 document.head.insertAdjacentHTML('beforeend', `
