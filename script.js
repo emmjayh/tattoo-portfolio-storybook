@@ -245,12 +245,17 @@ class BookGallery {
                 : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             
             // Create flipping page with current right and new left content
-            this.flippingPage.innerHTML = `
-                ${this.rightPage.innerHTML}
-                <div class="page-back-side" style="background: #f0f0e8;">
-                    ${newLeftContent}
-                </div>
-            `;
+            // Clone the entire right page to maintain exact structure
+            const rightPageClone = this.rightPage.cloneNode(true);
+            this.flippingPage.innerHTML = '';
+            this.flippingPage.appendChild(rightPageClone.firstElementChild);
+            
+            // Add back side with same structure
+            const backSide = document.createElement('div');
+            backSide.className = 'page-back-side';
+            backSide.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0e8; transform: rotateY(180deg); backface-visibility: hidden;';
+            backSide.innerHTML = newLeftContent;
+            this.flippingPage.appendChild(backSide);
             
             // Setup flipping page
             this.flippingPage.style.display = 'block';
@@ -305,12 +310,17 @@ class BookGallery {
                 : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             
             // Create flipping page with current left and new right content
-            this.flippingPage.innerHTML = `
-                ${this.leftPage.innerHTML}
-                <div class="page-back-side" style="background: #f0f0e8;">
-                    ${newRightContent}
-                </div>
-            `;
+            // Clone the entire left page to maintain exact structure
+            const leftPageClone = this.leftPage.cloneNode(true);
+            this.flippingPage.innerHTML = '';
+            this.flippingPage.appendChild(leftPageClone.firstElementChild);
+            
+            // Add back side with same structure
+            const backSide = document.createElement('div');
+            backSide.className = 'page-back-side';
+            backSide.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0e8; transform: rotateY(180deg); backface-visibility: hidden;';
+            backSide.innerHTML = newRightContent;
+            this.flippingPage.appendChild(backSide);
             
             // Setup flipping page
             this.flippingPage.style.display = 'block';
