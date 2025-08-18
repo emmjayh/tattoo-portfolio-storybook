@@ -121,9 +121,10 @@ class SimpleFlipbook {
             pageElement.className = 'stacked-page';
             pageElement.style.cssText = `
                 position: absolute;
-                width: 100%;
+                width: 50%;
                 height: 100%;
-                transform-origin: center center;
+                right: 0;
+                transform-origin: left center;
                 transform-style: preserve-3d;
                 transition: none;
                 z-index: ${Math.floor(this.pages.length/2) - Math.floor(i/2)};
