@@ -499,10 +499,10 @@ class BookSpread {
             this.addNavigationArrow(this.leftPageFront, 'prev');
         }
         
-        // Set left page back (shows the previous LEFT page when flipping backward)
-        // When the left page flips to the right, we see the previous left page on its back
-        this.leftPageBack.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
-            ? this.pages[prevLeftIndex].content
+        // Set left page back (shows the previous RIGHT page for backward flips)
+        // This becomes the new right page when flipping backward
+        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
+            ? this.pages[prevRightIndex].content
             : '<div class="blank-page"></div>';
         
         // Set right page front
@@ -590,8 +590,8 @@ class BookSpread {
                 // The back of the left page should show the PREVIOUS RIGHT PAGE
                 const prevSpreadRightIndex = (this.currentSpread - 1) * 2 + 1;
                 if (prevSpreadRightIndex >= 0 && prevSpreadRightIndex < this.pages.length) {
-                    // Wrap content to un-mirror it since it will be rotated
-                    this.leftPageBack.innerHTML = `<div style="transform: scaleX(-1); width: 100%; height: 100%;">${this.pages[prevSpreadRightIndex].content}</div>`;
+                    // Set the content directly - it will show when the page flips
+                    this.leftPageBack.innerHTML = this.pages[prevSpreadRightIndex].content;
                 }
                 
                 this.leftPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
