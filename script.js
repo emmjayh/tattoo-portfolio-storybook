@@ -269,8 +269,7 @@ class BookGallery {
             // Hide right page during flip
             this.rightPage.style.opacity = '0';
             
-            // Immediately update the left page (it's covered by the flipping page)
-            this.leftPage.innerHTML = newLeftContent;
+            // DON'T update left page yet - keep the old content visible
             
             // Start flip animation
             requestAnimationFrame(() => {
@@ -279,7 +278,8 @@ class BookGallery {
                 
                 // After flip completes
                 setTimeout(() => {
-                    // Update right page with new content
+                    // NOW update both pages with new content
+                    this.leftPage.innerHTML = newLeftContent;
                     this.rightPage.innerHTML = newRightContent;
                     this.rightPage.style.opacity = '1';
                     
@@ -334,8 +334,7 @@ class BookGallery {
             // Hide left page during flip
             this.leftPage.style.opacity = '0';
             
-            // Immediately update the right page (it's covered by the flipping page)
-            this.rightPage.innerHTML = newRightContent;
+            // DON'T update right page yet - keep the old content visible
             
             // Start flip animation
             requestAnimationFrame(() => {
@@ -344,8 +343,9 @@ class BookGallery {
                 
                 // After flip completes
                 setTimeout(() => {
-                    // Update left page with new content
+                    // NOW update both pages with new content
                     this.leftPage.innerHTML = newLeftContent;
+                    this.rightPage.innerHTML = newRightContent;
                     this.leftPage.style.opacity = '1';
                     
                     // Hide flipping page
