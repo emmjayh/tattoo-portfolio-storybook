@@ -587,10 +587,11 @@ class BookSpread {
                 
             } else {
                 // Backward flip - flip left page to right
-                // First, set the left page back to show the previous left page
-                const prevSpreadLeftIndex = (this.currentSpread - 1) * 2;
-                if (prevSpreadLeftIndex >= 0 && prevSpreadLeftIndex < this.pages.length) {
-                    this.leftPageBack.innerHTML = this.pages[prevSpreadLeftIndex].content;
+                // The back of the left page should show the PREVIOUS RIGHT PAGE
+                const prevSpreadRightIndex = (this.currentSpread - 1) * 2 + 1;
+                if (prevSpreadRightIndex >= 0 && prevSpreadRightIndex < this.pages.length) {
+                    // Wrap content to un-mirror it since it will be rotated
+                    this.leftPageBack.innerHTML = `<div style="transform: scaleX(-1); width: 100%; height: 100%;">${this.pages[prevSpreadRightIndex].content}</div>`;
                 }
                 
                 this.leftPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
