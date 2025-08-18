@@ -11,24 +11,28 @@ class BookSpread {
     }
     
     async init() {
-        // Get DOM elements
-        this.book = document.getElementById('book');
-        this.pageCounter = document.getElementById('currentPageNum');
-        this.hoverLeft = document.getElementById('hoverLeft');
-        this.hoverRight = document.getElementById('hoverRight');
-        
-        // Load content
-        await this.loadImagesFromServer();
-        this.loadPageContent();
-        
-        // Setup book structure
-        this.setupBook();
-        
-        // Show initial spread
-        this.showSpread(0);
-        
-        // Bind events
-        this.bindEvents();
+        try {
+            // Get DOM elements
+            this.book = document.getElementById('book');
+            this.pageCounter = document.getElementById('currentPageNum');
+            this.hoverLeft = document.getElementById('hoverLeft');
+            this.hoverRight = document.getElementById('hoverRight');
+            
+            // Load content
+            await this.loadImagesFromServer();
+            this.loadPageContent();
+            
+            // Setup book structure
+            this.setupBook();
+            
+            // Show initial spread
+            this.showSpread(0);
+            
+            // Bind events
+            this.bindEvents();
+        } catch (error) {
+            console.error('Error initializing book:', error);
+        }
     }
     
     async loadImagesFromServer() {
@@ -38,7 +42,9 @@ class BookSpread {
             
             if (data.images && data.images.length > 0) {
                 const hiddenContent = document.getElementById('hidden-content');
+                // Save contact template before clearing
                 const contactTemplate = hiddenContent.querySelector('[data-page="contact"]');
+                const savedContactHTML = contactTemplate ? contactTemplate.outerHTML : null;
                 
                 hiddenContent.innerHTML = '';
                 
@@ -54,8 +60,11 @@ class BookSpread {
                     hiddenContent.appendChild(template);
                 });
                 
-                if (contactTemplate) {
-                    hiddenContent.appendChild(contactTemplate);
+                // Re-add contact template if it existed
+                if (savedContactHTML) {
+                    const div = document.createElement('div');
+                    div.innerHTML = savedContactHTML;
+                    hiddenContent.appendChild(div.firstChild);
                 }
             }
         } catch (error) {
@@ -72,10 +81,11 @@ class BookSpread {
         });
         
         // Create thumbnail gallery for cover
-        const templates = document.querySelectorAll('.page-template');
+        const allTemplates = document.querySelectorAll('.page-template');
+        console.log('Found templates:', allTemplates.length);
         let thumbnailsHtml = '';
         
-        templates.forEach((template, index) => {
+        allTemplates.forEach((template, index) => {
             const img = template.querySelector('img');
             if (img && template.dataset.page !== 'contact') {
                 thumbnailsHtml += `
@@ -178,8 +188,7 @@ class BookSpread {
         });
         
         // Gallery pages
-        const templates = document.querySelectorAll('.page-template');
-        templates.forEach(template => {
+        allTemplates.forEach(template => {
             const img = template.querySelector('img');
             const h3 = template.querySelector('h3');
             const p = template.querySelector('p');

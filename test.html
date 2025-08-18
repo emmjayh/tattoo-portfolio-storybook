@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <h1>Test Page</h1>
+    <div id="test"></div>
+    <script>
+        fetch('/api/images')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('test').innerHTML = JSON.stringify(data, null, 2);
+            })
+            .catch(err => {
+                document.getElementById('test').innerHTML = 'Error: ' + err;
+            });
+    </script>
+</body>
+</html>
