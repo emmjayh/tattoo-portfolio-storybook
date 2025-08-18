@@ -75,19 +75,68 @@ class BookSpread {
     loadPageContent() {
         this.pages = [];
         
-        // Blank left page for cover
+        // Left page with Carla Portfolio title
         this.pages.push({
-            content: '<div class="blank-page"></div>'
+            content: `
+                <div class="cover-left-page" style="
+                    padding: 60px;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                ">
+                    <h1 class="portfolio-title" style="
+                        font-size: 5rem;
+                        font-weight: 300;
+                        letter-spacing: 10px;
+                        background: linear-gradient(135deg, #d60270 0%, #9b4f96 50%, #0038a8 100%);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                        margin-bottom: 30px;
+                        text-transform: uppercase;
+                        text-shadow: 0 0 40px rgba(214, 2, 112, 0.3);
+                    ">Carla<br>Portfolio</h1>
+                    <p style="
+                        font-size: 1.4rem;
+                        color: #666;
+                        font-style: italic;
+                        margin-bottom: 20px;
+                    ">Tattoo Artistry & Design</p>
+                    <div style="
+                        width: 100px;
+                        height: 2px;
+                        background: linear-gradient(90deg, #d60270, #9b4f96, #0038a8);
+                        margin: 30px auto;
+                    "></div>
+                    <p style="
+                        font-size: 1rem;
+                        color: #999;
+                        margin-top: 20px;
+                    ">Turn the page to explore →</p>
+                </div>
+            `
         });
         
-        // Create thumbnail gallery for cover
+        // Create thumbnail gallery and get most recent image
         const allTemplates = document.querySelectorAll('.page-template');
         console.log('Found templates:', allTemplates.length);
         let thumbnailsHtml = '';
+        let mostRecentImage = null;
         
         allTemplates.forEach((template, index) => {
             const img = template.querySelector('img');
             if (img && template.dataset.page !== 'contact') {
+                // First image is the most recent (they're sorted by number)
+                if (!mostRecentImage) {
+                    mostRecentImage = {
+                        src: img.src,
+                        alt: img.alt,
+                        title: template.querySelector('h3')?.textContent || ''
+                    };
+                }
                 thumbnailsHtml += `
                     <div class="cover-thumbnail" data-page="${index + 2}">
                         <img src="${img.src}" alt="${img.alt}">
@@ -96,34 +145,52 @@ class BookSpread {
             }
         });
         
-        // Cover page (right side) with gallery preview
+        // Right page with most recent showpiece and gallery
         this.pages.push({
             content: `
                 <div class="cover-page" style="padding: 40px; height: 100%; display: flex; flex-direction: column;">
-                    <div class="cover-header" style="text-align: center; margin-bottom: 30px;">
-                        <h1 class="portfolio-title" style="
-                            font-size: 4.5rem;
+                    <div class="cover-header" style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="
+                            font-size: 2rem;
                             font-weight: 300;
-                            letter-spacing: 8px;
-                            background: linear-gradient(135deg, #d60270 0%, #9b4f96 50%, #0038a8 100%);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                            background-clip: text;
-                            margin-bottom: 20px;
-                            text-transform: uppercase;
-                            text-shadow: 0 0 30px rgba(214, 2, 112, 0.3);
-                        ">Carla Portfolio</h1>
-                        <p style="
-                            font-size: 1.2rem;
-                            color: #666;
-                            font-style: italic;
+                            color: #333;
                             margin-bottom: 15px;
-                        ">Explore My Tattoo Artistry</p>
-                        <p style="
-                            font-size: 0.9rem;
-                            color: #999;
-                        ">← Flip pages or click thumbnails below →</p>
+                            text-transform: uppercase;
+                            letter-spacing: 3px;
+                        ">Most Recent Showpiece</h2>
+                        ${mostRecentImage ? `
+                            <div style="
+                                margin-bottom: 20px;
+                                padding: 15px;
+                                background: linear-gradient(135deg, rgba(214,2,112,0.05), rgba(155,79,150,0.05));
+                                border-radius: 10px;
+                                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                            ">
+                                <img src="${mostRecentImage.src}" alt="${mostRecentImage.alt}" style="
+                                    width: 100%;
+                                    max-height: 250px;
+                                    object-fit: contain;
+                                    border-radius: 8px;
+                                    margin-bottom: 10px;
+                                ">
+                                <p style="
+                                    text-align: center;
+                                    color: #666;
+                                    font-size: 1.1rem;
+                                    font-style: italic;
+                                ">${mostRecentImage.title}</p>
+                            </div>
+                        ` : ''}
                     </div>
+                    
+                    <h3 style="
+                        text-align: center;
+                        font-size: 1.2rem;
+                        color: #666;
+                        margin-bottom: 15px;
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                    ">Gallery Collection</h3>
                     
                     <div class="thumbnail-container" style="
                         flex: 1;
