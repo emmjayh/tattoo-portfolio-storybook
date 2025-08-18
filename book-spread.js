@@ -114,20 +114,59 @@ class BookSpread {
         // Clear book
         this.book.innerHTML = '';
         
-        // Create left page
+        // Hidden previous left page (for backward flips)
+        this.prevLeftPage = document.createElement('div');
+        this.prevLeftPage.style.cssText = `
+            position: absolute;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: #fdfdf8;
+            z-index: 5;
+            overflow: hidden;
+        `;
+        this.book.appendChild(this.prevLeftPage);
+        
+        // Create left page (this will flip for backward)
         this.leftPage = document.createElement('div');
         this.leftPage.style.cssText = `
             position: absolute;
             left: 0;
             width: 50%;
             height: 100%;
-            background: #fdfdf8;
+            transform-origin: right center;
+            transform-style: preserve-3d;
             z-index: 10;
             overflow: hidden;
         `;
         this.book.appendChild(this.leftPage);
         
-        // Create right page (this will flip)
+        // Left page front
+        this.leftPageFront = document.createElement('div');
+        this.leftPageFront.style.cssText = `
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #fdfdf8;
+            backface-visibility: hidden;
+            overflow: hidden;
+        `;
+        this.leftPage.appendChild(this.leftPageFront);
+        
+        // Left page back
+        this.leftPageBack = document.createElement('div');
+        this.leftPageBack.style.cssText = `
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #f0f0e8;
+            backface-visibility: hidden;
+            transform: rotateY(180deg);
+            overflow: hidden;
+        `;
+        this.leftPage.appendChild(this.leftPageBack);
+        
+        // Create right page (this will flip for forward)
         this.rightPage = document.createElement('div');
         this.rightPage.style.cssText = `
             position: absolute;
@@ -165,7 +204,7 @@ class BookSpread {
         `;
         this.rightPage.appendChild(this.rightPageBack);
         
-        // Hidden next right page (revealed after flip)
+        // Hidden next right page (revealed after forward flip)
         this.nextRightPage = document.createElement('div');
         this.nextRightPage.style.cssText = `
             position: absolute;
@@ -188,10 +227,22 @@ class BookSpread {
         const rightIndex = spreadIndex * 2 + 1;
         const nextLeftIndex = (spreadIndex + 1) * 2;
         const nextRightIndex = (spreadIndex + 1) * 2 + 1;
+        const prevLeftIndex = (spreadIndex - 1) * 2;
+        const prevRightIndex = (spreadIndex - 1) * 2 + 1;
         
-        // Set left page
-        this.leftPage.innerHTML = leftIndex < this.pages.length 
+        // Set previous left page (for backward flip)
+        this.prevLeftPage.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
+            ? this.pages[prevLeftIndex].content
+            : '<div class="blank-page"></div>';
+        
+        // Set left page front
+        this.leftPageFront.innerHTML = leftIndex < this.pages.length 
             ? this.pages[leftIndex].content 
+            : '<div class="blank-page"></div>';
+        
+        // Set left page back (previous right page)
+        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
+            ? this.pages[prevRightIndex].content
             : '<div class="blank-page"></div>';
         
         // Set right page front
@@ -240,66 +291,21 @@ class BookSpread {
             }, 800);
             
         } else {
-            // For going back, we need to flip from left
-            // Create a temporary flip element
-            const flipPage = document.createElement('div');
-            flipPage.style.cssText = `
-                position: absolute;
-                left: 0;
-                width: 50%;
-                height: 100%;
-                transform-origin: right center;
-                transform-style: preserve-3d;
-                z-index: 30;
-            `;
+            // Backward flip - flip left page to right
+            this.leftPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            this.leftPage.style.transform = 'rotateY(180deg)';
             
-            // Get previous pages
-            const prevLeftIndex = (this.currentSpread - 1) * 2;
-            const prevRightIndex = (this.currentSpread - 1) * 2 + 1;
-            
-            // Front (current left)
-            const flipFront = document.createElement('div');
-            flipFront.style.cssText = `
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                background: #fdfdf8;
-                backface-visibility: hidden;
-            `;
-            flipFront.innerHTML = this.leftPage.innerHTML;
-            flipPage.appendChild(flipFront);
-            
-            // Back (previous right)
-            const flipBack = document.createElement('div');
-            flipBack.style.cssText = `
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                background: #f0f0e8;
-                backface-visibility: hidden;
-                transform: rotateY(180deg);
-            `;
-            flipBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
-                ? this.pages[prevRightIndex].content
-                : '<div class="blank-page"></div>';
-            flipPage.appendChild(flipBack);
-            
-            this.book.appendChild(flipPage);
-            
-            // Update underlying pages first
-            this.currentSpread--;
-            this.showSpread(this.currentSpread);
-            
-            // Animate flip
-            requestAnimationFrame(() => {
-                flipPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-                flipPage.style.transform = 'rotateY(180deg)';
+            setTimeout(() => {
+                // Update spread
+                this.currentSpread--;
                 
-                setTimeout(() => {
-                    this.book.removeChild(flipPage);
-                    this.isAnimating = false;
-                }, 800);
-            });
+                // Reset and update pages
+                this.leftPage.style.transition = 'none';
+                this.leftPage.style.transform = 'rotateY(0deg)';
+                this.showSpread(this.currentSpread);
+                
+                this.isAnimating = false;
+            }, 800);
         }
     }
     
