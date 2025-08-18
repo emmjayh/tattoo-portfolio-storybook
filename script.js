@@ -279,13 +279,7 @@ class BookGallery {
             // Store current content BEFORE incrementing
             const currentRightContent = this.rightPage.innerHTML;
             
-            // Get the back page content (the page that's on the back of current right page)
-            const currentRightPageIndex = this.currentSpread * 2 + 1;
-            const backOfRightPageIndex = currentRightPageIndex + 1; // Next sequential page
-            const backOfRightContent = this.pages[backOfRightPageIndex]
-                ? `<div class="page-inner" style="background: #f0f0e8;">${this.pages[backOfRightPageIndex].content}</div>`
-                : '<div class="page-inner blank-page" style="background: #f0f0e8;"></div>';
-            
+            // Increment spread FIRST to get the new pages
             this.currentSpread++;
             
             // Get new page content
@@ -307,11 +301,11 @@ class BookGallery {
             frontSide.innerHTML = currentRightContent;
             this.flippingPage.appendChild(frontSide.firstElementChild);
             
-            // Back side - the content that's on the back of this page
+            // Back side - shows what will be the NEW LEFT page after flip completes
             const backSide = document.createElement('div');
             backSide.className = 'page-back-side';
             backSide.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0e8; transform: rotateY(180deg); backface-visibility: hidden;';
-            backSide.innerHTML = backOfRightContent;
+            backSide.innerHTML = newLeftContent;
             this.flippingPage.appendChild(backSide);
             
             // Setup flipping page
@@ -356,13 +350,7 @@ class BookGallery {
             // Store current content BEFORE decrementing
             const currentLeftContent = this.leftPage.innerHTML;
             
-            // Get the back page content (the page that's on the back of current left page)
-            const currentLeftPageIndex = this.currentSpread * 2;
-            const backOfLeftPageIndex = currentLeftPageIndex - 1; // Previous sequential page
-            const backOfLeftContent = this.pages[backOfLeftPageIndex] && backOfLeftPageIndex >= 0
-                ? `<div class="page-inner" style="background: #f0f0e8;">${this.pages[backOfLeftPageIndex].content}</div>`
-                : '<div class="page-inner blank-page" style="background: #f0f0e8;"></div>';
-            
+            // Decrement spread FIRST to get the new pages
             this.currentSpread--;
             
             // Get new page content
@@ -384,11 +372,11 @@ class BookGallery {
             frontSide.innerHTML = currentLeftContent;
             this.flippingPage.appendChild(frontSide.firstElementChild);
             
-            // Back side - the content that's on the back of this page
+            // Back side - shows what will be the NEW RIGHT page after flip completes
             const backSide = document.createElement('div');
             backSide.className = 'page-back-side';
             backSide.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0e8; transform: rotateY(180deg); backface-visibility: hidden;';
-            backSide.innerHTML = backOfLeftContent;
+            backSide.innerHTML = newRightContent;
             this.flippingPage.appendChild(backSide);
             
             // Setup flipping page
