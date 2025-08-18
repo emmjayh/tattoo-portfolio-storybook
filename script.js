@@ -293,10 +293,8 @@ class BookGallery {
                 ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[rightPageIndex].content}</div>`
                 : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             
-            // Update pages underneath immediately (they're hidden)
-            this.leftPage.innerHTML = newLeftContent;
-            this.rightPage.innerHTML = newRightContent;
-            this.rightPage.style.opacity = '0'; // Keep hidden initially
+            // DON'T update pages yet - wait until flip is underway
+            this.rightPage.style.opacity = '0'; // Hide right page during flip
             
             // Setup flipping page with SOLID backgrounds
             this.flippingPage.innerHTML = '';
@@ -329,8 +327,10 @@ class BookGallery {
                 this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(-180deg)';
                 
-                // When flip is halfway, show the new right page
+                // When flip is halfway, update and show the new pages
                 setTimeout(() => {
+                    this.leftPage.innerHTML = newLeftContent;
+                    this.rightPage.innerHTML = newRightContent;
                     this.rightPage.style.opacity = '1';
                 }, 400);
                 
@@ -365,10 +365,8 @@ class BookGallery {
                 ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[rightPageIndex].content}</div>`
                 : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             
-            // Update pages underneath immediately (they're hidden)
-            this.leftPage.innerHTML = newLeftContent;
-            this.rightPage.innerHTML = newRightContent;
-            this.leftPage.style.opacity = '0'; // Keep hidden initially
+            // DON'T update pages yet - wait until flip is underway
+            this.leftPage.style.opacity = '0'; // Hide left page during flip
             
             // Setup flipping page with SOLID backgrounds
             this.flippingPage.innerHTML = '';
@@ -401,8 +399,10 @@ class BookGallery {
                 this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(180deg)';
                 
-                // When flip is halfway, show the new left page
+                // When flip is halfway, update and show the new pages
                 setTimeout(() => {
+                    this.leftPage.innerHTML = newLeftContent;
+                    this.rightPage.innerHTML = newRightContent;
                     this.leftPage.style.opacity = '1';
                 }, 400);
                 
