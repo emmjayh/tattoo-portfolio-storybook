@@ -483,7 +483,7 @@ class BookSpread {
             this.prevLeftPage.style.display = 'block';
         }
         
-        // Set previous left page (for backward flip)
+        // Set previous left page (what's underneath when we flip backward)
         this.prevLeftPage.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
             ? this.pages[prevLeftIndex].content
             : '<div class="blank-page"></div>';
@@ -498,7 +498,7 @@ class BookSpread {
             this.addNavigationArrow(this.leftPageFront, 'prev');
         }
         
-        // Set left page back (previous right page - what becomes visible when flipping backward)
+        // Set left page back (previous right page - this is what shows during backward flip)
         this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
             ? this.pages[prevRightIndex].content
             : '<div class="blank-page"></div>';
