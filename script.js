@@ -221,40 +221,40 @@ class BookGallery {
             });
             
         } else {
-            // Backward flip: left page flips to right (from left side, not behind)
+            // Backward flip: left page flips from left to right
             const prevLeftContent = this.pages[this.currentSpread * 2 - 2] ? this.pages[this.currentSpread * 2 - 2].content : '';
             const prevRightContent = this.pages[this.currentSpread * 2 - 1] ? this.pages[this.currentSpread * 2 - 1].content : '';
             
-            // Set up flipping page at left side, already flipped
+            // Set up flipping page as the current left page, starting in normal position
             this.flippingPage.innerHTML = `
-                <div class="page-inner" style="background: #fdfdf8;">${prevRightContent}</div>
+                <div class="page-inner" style="background: #fdfdf8;">${this.leftPage.querySelector('.page-inner').innerHTML}</div>
                 <div class="page-back-side" style="background: #f0f0e8;">
-                    <div class="page-inner" style="background: #f0f0e8;">${this.leftPage.querySelector('.page-inner').innerHTML}</div>
+                    <div class="page-inner" style="background: #f0f0e8;">${prevRightContent}</div>
                 </div>
             `;
             this.flippingPage.style.display = 'block';
             this.flippingPage.style.left = '0';
             this.flippingPage.style.right = 'auto';
             this.flippingPage.style.width = '50%';
-            this.flippingPage.style.transform = 'rotateY(-180deg)';
+            this.flippingPage.style.transform = 'rotateY(0deg)';
             this.flippingPage.style.transformOrigin = 'right center';
             this.flippingPage.style.zIndex = '100';
-            this.flippingPage.style.backgroundColor = '#f0f0e8';
+            this.flippingPage.style.backgroundColor = '#fdfdf8';
             this.flippingPage.classList.add('left-page');
             
-            // Keep original left page visible but underneath
-            this.leftPage.style.zIndex = '1';
+            // Hide original left page
+            this.leftPage.style.opacity = '0';
             
-            // Animate the page flipping back to right
+            // Animate the page flipping from left to right
             requestAnimationFrame(() => {
                 this.flippingPage.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
-                this.flippingPage.style.transform = 'rotateY(0deg)';
+                this.flippingPage.style.transform = 'rotateY(180deg)';
                 
                 // Update content halfway through
                 setTimeout(() => {
                     this.currentSpread--;
                     this.leftPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${prevLeftContent}</div>`;
-                    this.leftPage.style.zIndex = '10';
+                    this.leftPage.style.opacity = '1';
                 }, 500);
                 
                 // Clean up after animation
