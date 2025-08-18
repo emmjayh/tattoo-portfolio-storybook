@@ -421,6 +421,11 @@ class BookSpread {
         // On mobile, we only use the right page
         this.rightPageFront.innerHTML = this.pages[pageIndex].content;
         
+        // Add navigation arrow for mobile (except page 0 and last page)
+        if (pageIndex > 0 && pageIndex < this.pages.length - 1) {
+            this.addNavigationArrow(this.rightPageFront, 'next');
+        }
+        
         // Set next page for animation
         if (pageIndex + 1 < this.pages.length) {
             this.rightPageBack.innerHTML = this.pages[pageIndex + 1].content;
@@ -455,6 +460,11 @@ class BookSpread {
             ? this.pages[leftIndex].content 
             : '<div class="blank-page"></div>';
         
+        // Add navigation arrow to left page (if not page 0)
+        if (leftIndex > 0 && leftIndex < this.pages.length) {
+            this.addNavigationArrow(this.leftPageFront, 'prev');
+        }
+        
         // Set left page back (previous right page - what becomes visible when flipping backward)
         this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
             ? this.pages[prevRightIndex].content
@@ -464,6 +474,11 @@ class BookSpread {
         this.rightPageFront.innerHTML = rightIndex < this.pages.length
             ? this.pages[rightIndex].content
             : '<div class="blank-page"></div>';
+        
+        // Add navigation arrow to right page (if not last page)
+        if (rightIndex > 0 && rightIndex < this.pages.length - 1) {
+            this.addNavigationArrow(this.rightPageFront, 'next');
+        }
         
         // Set right page back (next left page)
         this.rightPageBack.innerHTML = nextLeftIndex < this.pages.length
@@ -626,6 +641,87 @@ class BookSpread {
                     this.isAnimating = false;
                 }, 300);
             }, 400);
+        }
+    }
+    
+    addNavigationArrow(pageElement, direction) {
+        const arrow = document.createElement('div');
+        arrow.className = `nav-arrow nav-arrow-${direction}`;
+        arrow.style.cssText = `
+            position: absolute;
+            ${direction === 'next' ? 'right: 30px' : 'left: 30px'};
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(214, 2, 112, 0.15);
+            border: 2px solid rgba(214, 2, 112, 0.3);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        `;
+        
+        arrow.innerHTML = `
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="${direction === 'next' 
+                    ? 'M9 6L15 12L9 18' 
+                    : 'M15 6L9 12L15 18'}" 
+                stroke="#d60270" 
+                stroke-width="3" 
+                stroke-linecap="round" 
+                stroke-linejoin="round"/>
+            </svg>
+        `;
+        
+        // Add hover effect inline
+        arrow.addEventListener('mouseenter', () => {
+            arrow.style.background = 'rgba(214, 2, 112, 0.25)';
+            arrow.style.borderColor = 'rgba(214, 2, 112, 0.5)';
+            arrow.style.transform = 'translateY(-50%) scale(1.15)';
+            arrow.style.boxShadow = '0 6px 20px rgba(214, 2, 112, 0.3)';
+        });
+        
+        arrow.addEventListener('mouseleave', () => {
+            arrow.style.background = 'rgba(214, 2, 112, 0.15)';
+            arrow.style.borderColor = 'rgba(214, 2, 112, 0.3)';
+            arrow.style.transform = 'translateY(-50%) scale(1)';
+            arrow.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+        });
+        
+        // Add click handler
+        arrow.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.turnPage(direction);
+        });
+        
+        pageElement.appendChild(arrow);
+        
+        // Add pulse animation style if not already added
+        if (!document.getElementById('nav-arrow-styles')) {
+            const style = document.createElement('style');
+            style.id = 'nav-arrow-styles';
+            style.textContent = `
+                @keyframes pulse {
+                    0%, 100% { 
+                        opacity: 0.8;
+                        box-shadow: 0 4px 12px rgba(214, 2, 112, 0.2);
+                    }
+                    50% { 
+                        opacity: 1;
+                        box-shadow: 0 6px 20px rgba(214, 2, 112, 0.4);
+                    }
+                }
+                .nav-arrow:hover {
+                    animation: none;
+                }
+            `;
+            document.head.appendChild(style);
         }
     }
     
