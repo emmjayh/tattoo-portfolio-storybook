@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.claude
+.claude-flow
+.swarm
+*.md
+test.html
+book-logic.js
+four-page-book.js
+simple-flipbook.js
+script.js
+.DS_Store
+*.log

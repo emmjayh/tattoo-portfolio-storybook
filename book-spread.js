@@ -498,7 +498,7 @@ class BookSpread {
             this.addNavigationArrow(this.leftPageFront, 'prev');
         }
         
-        // Set left page back (previous right page - becomes new right page when flipping backward)
+        // Set left page back (previous right page - this becomes the new right page after backward flip)
         this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
             ? this.pages[prevRightIndex].content
             : '<div class="blank-page"></div>';
@@ -513,9 +513,9 @@ class BookSpread {
             this.addNavigationArrow(this.rightPageFront, 'next');
         }
         
-        // Set right page back (next left page - becomes new left page when flipping forward)
-        this.rightPageBack.innerHTML = nextLeftIndex < this.pages.length
-            ? this.pages[nextLeftIndex].content
+        // Set right page back (next right page - this will be the new right page after forward flip)
+        this.rightPageBack.innerHTML = nextRightIndex < this.pages.length
+            ? this.pages[nextRightIndex].content
             : '<div class="blank-page"></div>';
         
         // Set hidden next right page
@@ -789,14 +789,7 @@ class BookSpread {
     }
     
     bindEvents() {
-        // Hover with delay
-        this.hoverLeft.addEventListener('mouseenter', () => this.startHoverTimer('prev'));
-        this.hoverLeft.addEventListener('mouseleave', () => this.cancelHoverTimer());
-        
-        this.hoverRight.addEventListener('mouseenter', () => this.startHoverTimer('next'));
-        this.hoverRight.addEventListener('mouseleave', () => this.cancelHoverTimer());
-        
-        // Click for instant flip
+        // Click only - no hover effect
         this.hoverLeft.addEventListener('click', () => this.turnPage('prev'));
         this.hoverRight.addEventListener('click', () => this.turnPage('next'));
         
@@ -826,29 +819,6 @@ class BookSpread {
         this.setupImageExpansion();
     }
     
-    startHoverTimer(direction) {
-        this.cancelHoverTimer();
-        
-        if (direction === 'prev') {
-            this.hoverLeft.style.background = 'linear-gradient(to right, rgba(214, 2, 112, 0.08), transparent)';
-        } else {
-            this.hoverRight.style.background = 'linear-gradient(to left, rgba(155, 79, 150, 0.08), transparent)';
-        }
-        
-        this.hoverTimeout = setTimeout(() => {
-            this.turnPage(direction);
-        }, this.hoverDelay);
-    }
-    
-    cancelHoverTimer() {
-        if (this.hoverTimeout) {
-            clearTimeout(this.hoverTimeout);
-            this.hoverTimeout = null;
-        }
-        
-        this.hoverLeft.style.background = '';
-        this.hoverRight.style.background = '';
-    }
     
     setupImageExpansion() {
         // Create overlay for expanded images

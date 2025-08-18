@@ -526,21 +526,7 @@ body {
     border-radius: 0 10px 10px 0;
 }
 
-.hover-zone:hover {
-    background: linear-gradient(
-        to right,
-        rgba(214, 2, 112, 0.05),
-        transparent
-    );
-}
-
-.hover-right:hover {
-    background: linear-gradient(
-        to left,
-        rgba(155, 79, 150, 0.05),
-        transparent
-    );
-}
+/* Hover zones - click only, no visual effect */
 
 /* Page flip animation - not needed, handled in JS */
 
