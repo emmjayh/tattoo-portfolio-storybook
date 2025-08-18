@@ -227,36 +227,70 @@ class FourPageBook {
         this.isAnimating = true;
         
         if (direction === 'next') {
+            // Update spread FIRST
+            this.currentSpread++;
+            
+            // Update all 4 pages BEFORE animation starts
+            this.updateAllPages();
+            
+            // Now the behind-right page has the correct content
+            // Flip the OLD right page (which is now on top)
+            // We need to temporarily show the old content on the flipping page
+            const oldRightIndex = (this.currentSpread - 1) * 2 + 1;
+            const oldRightContent = oldRightIndex < this.pages.length 
+                ? this.pages[oldRightIndex].content 
+                : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
+            
+            // Set the right page to show the OLD content for flipping
+            this.rightPageFront.innerHTML = oldRightContent;
+            
             // Forward flip - flip the right page to the left
             this.rightPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
             this.rightPage.style.transform = 'rotateY(-180deg)';
             
             setTimeout(() => {
-                // After flip completes
-                this.currentSpread++;
+                // After flip completes, reset for next flip
                 this.rightPage.style.transition = 'none';
                 this.rightPage.style.transform = 'rotateY(0deg)';
+                // Update to show current content
                 this.updateAllPages();
                 this.isAnimating = false;
             }, 800);
             
         } else {
-            // Backward flip - need to flip left page
-            // First, setup left page for flipping
+            // Backward flip
+            // Get the old left content before updating
+            const oldLeftIndex = this.currentSpread * 2;
+            const oldLeftContent = oldLeftIndex < this.pages.length 
+                ? this.pages[oldLeftIndex].content 
+                : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
+            
+            // Update spread
+            this.currentSpread--;
+            
+            // Update all pages BEFORE animation
+            this.updateAllPages();
+            
+            // Create flipping element for the old left page
             const leftFlip = document.createElement('div');
             leftFlip.className = 'page left-flip';
             leftFlip.style.cssText = 'position: absolute; left: 0; width: 50%; height: 100%; transform-origin: right center; transform-style: preserve-3d; z-index: 30; transform: rotateY(0deg);';
             
-            // Front of left flip (current left content)
+            // Front of left flip (OLD left content)
             const leftFlipFront = document.createElement('div');
             leftFlipFront.style.cssText = 'position: absolute; width: 100%; height: 100%; background: #fdfdf8; backface-visibility: hidden;';
-            leftFlipFront.innerHTML = this.leftPage.innerHTML;
+            leftFlipFront.innerHTML = oldLeftContent;
             leftFlip.appendChild(leftFlipFront);
             
-            // Back of left flip (previous page)
+            // Back of left flip (new right page that will be revealed)
+            const newRightIndex = this.currentSpread * 2 + 1;
+            const newRightContent = newRightIndex < this.pages.length
+                ? this.pages[newRightIndex].content
+                : '<div class="page-inner blank-page" style="background: #f0f0e8;"></div>';
+            
             const leftFlipBack = document.createElement('div');
             leftFlipBack.style.cssText = 'position: absolute; width: 100%; height: 100%; background: #f0f0e8; backface-visibility: hidden; transform: rotateY(180deg);';
-            leftFlipBack.innerHTML = this.behindLeftPage.innerHTML;
+            leftFlipBack.innerHTML = newRightContent;
             leftFlip.appendChild(leftFlipBack);
             
             this.book.appendChild(leftFlip);
@@ -267,10 +301,8 @@ class FourPageBook {
                 leftFlip.style.transform = 'rotateY(180deg)';
                 
                 setTimeout(() => {
-                    // After flip completes
-                    this.currentSpread--;
+                    // After flip completes, remove the flip element
                     this.book.removeChild(leftFlip);
-                    this.updateAllPages();
                     this.isAnimating = false;
                 }, 800);
             });
