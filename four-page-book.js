@@ -184,8 +184,9 @@ class FourPageBook {
         const spread = this.currentSpread;
         const leftIndex = spread * 2;
         const rightIndex = spread * 2 + 1;
-        const nextRightIndex = (spread + 1) * 2 + 1;
-        const prevLeftIndex = Math.max(0, (spread - 1) * 2);
+        const nextLeftIndex = (spread + 1) * 2;  // This is page 3 (next left page)
+        const nextRightIndex = (spread + 1) * 2 + 1;  // This is page 4 (next right page)
+        const prevRightIndex = Math.max(0, (spread - 1) * 2 + 1);
         
         // Update left page (Page 1)
         this.leftPage.innerHTML = leftIndex < this.pages.length && leftIndex >= 0
@@ -197,19 +198,19 @@ class FourPageBook {
             ? this.pages[rightIndex].content
             : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
         
-        // Update right page back (shows what's behind when flipped - Page 3)
-        this.rightPageBack.innerHTML = nextRightIndex < this.pages.length
-            ? this.pages[nextRightIndex].content
+        // Update right page back (shows page 3 when flipped)
+        this.rightPageBack.innerHTML = nextLeftIndex < this.pages.length
+            ? this.pages[nextLeftIndex].content
             : '<div class="page-inner blank-page" style="background: #f0f0e8;"></div>';
         
         // Update behind-right page (Page 3 - revealed when right flips)
-        this.behindRightPage.innerHTML = nextRightIndex < this.pages.length
-            ? this.pages[nextRightIndex].content
+        this.behindRightPage.innerHTML = nextLeftIndex < this.pages.length
+            ? this.pages[nextLeftIndex].content
             : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
         
-        // Update behind-left page (Page 4 - for backward flips)
-        this.behindLeftPage.innerHTML = prevLeftIndex >= 0
-            ? this.pages[prevLeftIndex].content
+        // Update behind-left page (for backward flips - previous right page)
+        this.behindLeftPage.innerHTML = prevRightIndex >= 0
+            ? this.pages[prevRightIndex].content
             : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
         
         this.updateCounter();
