@@ -75,9 +75,50 @@ class BookSpread {
     loadPageContent() {
         this.pages = [];
         
-        // Page 0: Empty (represents closed book state)
+        // Page 0: Left side of cover with Carla Portfolio title
         this.pages.push({
-            content: '<div class="blank-page"></div>'
+            content: `
+                <div class="cover-left-page" style="
+                    padding: 60px;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    background: linear-gradient(135deg, rgba(214,2,112,0.02), rgba(155,79,150,0.02));
+                ">
+                    <h1 class="portfolio-title" style="
+                        font-size: 5rem;
+                        font-weight: 300;
+                        letter-spacing: 10px;
+                        background: linear-gradient(135deg, #d60270 0%, #9b4f96 50%, #0038a8 100%);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                        margin-bottom: 30px;
+                        text-transform: uppercase;
+                        text-shadow: 0 0 40px rgba(214, 2, 112, 0.3);
+                    ">Carla<br>Portfolio</h1>
+                    <p style="
+                        font-size: 1.4rem;
+                        color: #666;
+                        font-style: italic;
+                        margin-bottom: 20px;
+                    ">Tattoo Artistry & Design</p>
+                    <div style="
+                        width: 100px;
+                        height: 2px;
+                        background: linear-gradient(90deg, #d60270, #9b4f96, #0038a8);
+                        margin: 30px auto;
+                    "></div>
+                    <p style="
+                        font-size: 1rem;
+                        color: #999;
+                        margin-top: 20px;
+                    ">Turn the page to explore →</p>
+                </div>
+            `
         });
         
         // Create thumbnail gallery and get most recent image
@@ -105,36 +146,18 @@ class BookSpread {
             }
         });
         
-        // Page 1: Cover page (combines title and gallery)
+        // Page 1: Right side of cover with gallery
         this.pages.push({
             content: `
                 <div class="cover-page" style="padding: 40px; height: 100%; display: flex; flex-direction: column;">
                     <div class="cover-header" style="text-align: center; margin-bottom: 20px;">
-                        <h1 class="portfolio-title" style="
-                            font-size: 4rem;
-                            font-weight: 300;
-                            letter-spacing: 10px;
-                            background: linear-gradient(135deg, #d60270 0%, #9b4f96 50%, #0038a8 100%);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                            background-clip: text;
-                            margin-bottom: 15px;
-                            text-transform: uppercase;
-                            text-shadow: 0 0 30px rgba(214, 2, 112, 0.3);
-                        ">Carla Portfolio</h1>
-                        <p style="
-                            font-size: 1.2rem;
-                            color: #666;
-                            font-style: italic;
-                            margin-bottom: 20px;
-                        ">Tattoo Artistry & Design</p>
                         <h2 style="
-                            font-size: 1.5rem;
+                            font-size: 2rem;
                             font-weight: 300;
                             color: #333;
                             margin-bottom: 15px;
                             text-transform: uppercase;
-                            letter-spacing: 2px;
+                            letter-spacing: 3px;
                         ">Most Recent Showpiece</h2>
                         ${mostRecentImage ? `
                             <div style="
@@ -379,51 +402,39 @@ class BookSpread {
         const prevLeftIndex = (spreadIndex - 1) * 2;
         const prevRightIndex = (spreadIndex - 1) * 2 + 1;
         
-        // Special case: at the beginning (cover only)
-        if (spreadIndex === 0) {
-            // Hide left page, show only right page (the cover)
-            this.leftPage.style.display = 'none';
-            this.prevLeftPage.style.display = 'none';
-            
-            // Right page shows the cover (page 1)
-            this.rightPageFront.innerHTML = this.pages[1].content;
-            this.rightPageBack.innerHTML = this.pages[2] ? this.pages[2].content : '<div class="blank-page"></div>';
-            this.nextRightPage.innerHTML = this.pages[3] ? this.pages[3].content : '<div class="blank-page"></div>';
-        } else {
-            // Normal spread display
-            this.leftPage.style.display = 'block';
-            this.prevLeftPage.style.display = 'block';
-            
-            // Set previous left page (for backward flip)
-            this.prevLeftPage.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
-                ? this.pages[prevLeftIndex].content
-                : '<div class="blank-page"></div>';
-            
-            // Set left page front (current left page)
-            this.leftPageFront.innerHTML = leftIndex < this.pages.length 
-                ? this.pages[leftIndex].content 
-                : '<div class="blank-page"></div>';
-            
-            // Set left page back (previous right page - what becomes visible when flipping backward)
-            this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
-                ? this.pages[prevRightIndex].content
-                : '<div class="blank-page"></div>';
-            
-            // Set right page front
-            this.rightPageFront.innerHTML = rightIndex < this.pages.length
-                ? this.pages[rightIndex].content
-                : '<div class="blank-page"></div>';
-            
-            // Set right page back (next left page)
-            this.rightPageBack.innerHTML = nextLeftIndex < this.pages.length
-                ? this.pages[nextLeftIndex].content
-                : '<div class="blank-page"></div>';
-            
-            // Set hidden next right page
-            this.nextRightPage.innerHTML = nextRightIndex < this.pages.length
-                ? this.pages[nextRightIndex].content
-                : '<div class="blank-page"></div>';
-        }
+        // Always show both pages
+        this.leftPage.style.display = 'block';
+        this.prevLeftPage.style.display = 'block';
+        
+        // Set previous left page (for backward flip)
+        this.prevLeftPage.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
+            ? this.pages[prevLeftIndex].content
+            : '<div class="blank-page"></div>';
+        
+        // Set left page front (current left page)
+        this.leftPageFront.innerHTML = leftIndex < this.pages.length 
+            ? this.pages[leftIndex].content 
+            : '<div class="blank-page"></div>';
+        
+        // Set left page back (previous right page - what becomes visible when flipping backward)
+        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
+            ? this.pages[prevRightIndex].content
+            : '<div class="blank-page"></div>';
+        
+        // Set right page front
+        this.rightPageFront.innerHTML = rightIndex < this.pages.length
+            ? this.pages[rightIndex].content
+            : '<div class="blank-page"></div>';
+        
+        // Set right page back (next left page)
+        this.rightPageBack.innerHTML = nextLeftIndex < this.pages.length
+            ? this.pages[nextLeftIndex].content
+            : '<div class="blank-page"></div>';
+        
+        // Set hidden next right page
+        this.nextRightPage.innerHTML = nextRightIndex < this.pages.length
+            ? this.pages[nextRightIndex].content
+            : '<div class="blank-page"></div>';
         
         this.updateCounter();
     }
