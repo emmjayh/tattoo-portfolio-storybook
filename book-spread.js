@@ -499,10 +499,10 @@ class BookSpread {
             this.addNavigationArrow(this.leftPageFront, 'prev');
         }
         
-        // Set left page back (shows the previous LEFT page when flipping backward)
-        // When flipping backward, the back shows the destination left page
-        this.leftPageBack.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
-            ? this.pages[prevLeftIndex].content
+        // Set left page back (shows the previous RIGHT page when flipping backward)
+        // When the left page flips to the right, its back becomes the new right page
+        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
+            ? this.pages[prevRightIndex].content
             : '<div class="blank-page"></div>';
         
         // Set right page front
