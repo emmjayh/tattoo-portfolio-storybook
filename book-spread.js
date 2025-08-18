@@ -498,9 +498,9 @@ class BookSpread {
             this.addNavigationArrow(this.leftPageFront, 'prev');
         }
         
-        // Set left page back (previous right page - this becomes the new right page after backward flip)
-        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
-            ? this.pages[prevRightIndex].content
+        // Set left page back (previous left page - this becomes visible as we flip backward)
+        this.leftPageBack.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
+            ? this.pages[prevLeftIndex].content
             : '<div class="blank-page"></div>';
         
         // Set right page front
