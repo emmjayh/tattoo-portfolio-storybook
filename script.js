@@ -27,19 +27,21 @@ class BookGallery {
         // Load page content
         this.loadPages();
         
-        // Preload all images first
-        this.preloadAllImages().then(() => {
-            // Initialize both pages with proper content
-            this.updateSpread();
-            
-            // Pre-render all pages for instant switching
-            this.prerenderAllPages();
-            
-            // Preload adjacent pages for smoother transitions
-            this.preloadAdjacentPages();
-            
-            // Bind events
-            this.bindEvents();
+        // Initialize both pages with proper content
+        this.updateSpread();
+        
+        // Pre-render all pages for instant switching
+        this.prerenderAllPages();
+        
+        // Preload adjacent pages for smoother transitions
+        this.preloadAdjacentPages();
+        
+        // Bind events
+        this.bindEvents();
+        
+        // Preload images in background (non-blocking)
+        this.preloadAllImages().catch(err => {
+            console.warn('Image preload failed:', err);
         });
     }
     
@@ -217,18 +219,18 @@ class BookGallery {
             const nextLeftContent = this.renderedPages.get(nextLeftIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
             const nextRightContent = this.renderedPages.get(nextRightIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
             
+            // Store current right page content BEFORE any changes
+            const currentRightHTML = this.rightPage.innerHTML;
+            
             // Pre-update the underlying pages immediately (hidden)
             this.leftPage.innerHTML = nextLeftContent;
             this.rightPage.innerHTML = nextRightContent;
             this.leftPage.style.opacity = '0';
             this.rightPage.style.opacity = '0';
             
-            // Get current right page content before updating
-            const currentRightContent = this.renderedPages.get(this.currentSpread * 2 + 1) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
-            
             // Clone the right page for flipping
             this.flippingPage.innerHTML = `
-                ${currentRightContent.replace('page-inner', 'page-inner page-front')}
+                ${currentRightHTML}
                 <div class="page-back-side" style="background: #f0f0e8;">
                     ${nextLeftContent}
                 </div>
@@ -280,18 +282,18 @@ class BookGallery {
             const prevLeftContent = this.renderedPages.get(prevLeftIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
             const prevRightContent = this.renderedPages.get(prevRightIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
             
+            // Store current left page content BEFORE any changes
+            const currentLeftHTML = this.leftPage.innerHTML;
+            
             // Pre-update the underlying pages immediately (hidden)
             this.leftPage.innerHTML = prevLeftContent;
             this.rightPage.innerHTML = prevRightContent;
             this.leftPage.style.opacity = '0';
             this.rightPage.style.opacity = '0';
             
-            // Get current left page content before updating
-            const currentLeftContent = this.renderedPages.get(this.currentSpread * 2) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
-            
             // Set up flipping page as the current left page, starting in normal position
             this.flippingPage.innerHTML = `
-                ${currentLeftContent.replace('page-inner', 'page-inner page-front')}
+                ${currentLeftHTML}
                 <div class="page-back-side" style="background: #f0f0e8;">
                     ${prevRightContent}
                 </div>
