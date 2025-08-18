@@ -382,10 +382,51 @@ body {
     outline: none;
     display: block;
     opacity: 1;
-    transition: none;
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+}
+
+.gallery-content img:hover {
+    transform: scale(1.05) translateZ(0);
+}
+
+/* Expanded image overlay */
+.image-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.image-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.image-overlay img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    cursor: zoom-out;
+    transform: scale(0.8);
+    transition: transform 0.4s ease;
+}
+
+.image-overlay.active img {
+    transform: scale(1);
 }
 
 .gallery-info {

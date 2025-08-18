@@ -162,6 +162,9 @@ class BookGallery {
         this.hoverLeft.addEventListener('click', () => this.turnPage('prev'));
         this.hoverRight.addEventListener('click', () => this.turnPage('next'));
         
+        // Image expansion on hover
+        this.setupImageExpansion();
+        
         // Keyboard
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') this.turnPage('prev');
@@ -221,6 +224,7 @@ class BookGallery {
     
     turnPage(direction) {
         if (this.isAnimating) return;
+        if (this.imageExpanded) return; // Don't turn page when image is expanded
         
         const maxSpreads = Math.ceil(this.totalPages / 2);
         
@@ -444,6 +448,80 @@ class BookGallery {
                 this.preloadedContent[`right-${prevRightIndex}`] = this.pages[prevRightIndex].content;
             }
         }
+    }
+    
+    setupImageExpansion() {
+        // Create overlay element
+        const overlay = document.createElement('div');
+        overlay.className = 'image-overlay';
+        document.body.appendChild(overlay);
+        
+        // Track hover timeout
+        let hoverTimeout = null;
+        let currentImage = null;
+        
+        // Function to expand image
+        const expandImage = (img) => {
+            if (this.isAnimating) return; // Don't expand during page flip
+            
+            const clone = img.cloneNode(true);
+            overlay.innerHTML = '';
+            overlay.appendChild(clone);
+            overlay.classList.add('active');
+            currentImage = img;
+            
+            // Prevent page turning while image is expanded
+            this.imageExpanded = true;
+        };
+        
+        // Function to close expanded image
+        const closeImage = () => {
+            overlay.classList.remove('active');
+            currentImage = null;
+            this.imageExpanded = false;
+            if (hoverTimeout) {
+                clearTimeout(hoverTimeout);
+                hoverTimeout = null;
+            }
+        };
+        
+        // Add listeners to all gallery images
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.matches('.gallery-content img')) {
+                // Clear any existing timeout
+                if (hoverTimeout) {
+                    clearTimeout(hoverTimeout);
+                }
+                
+                // Set timeout for expansion (500ms delay)
+                hoverTimeout = setTimeout(() => {
+                    expandImage(e.target);
+                }, 500);
+            }
+        });
+        
+        // Cancel expansion if mouse leaves image before timeout
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.matches('.gallery-content img') && !currentImage) {
+                if (hoverTimeout) {
+                    clearTimeout(hoverTimeout);
+                    hoverTimeout = null;
+                }
+            }
+        });
+        
+        // Close on click
+        overlay.addEventListener('click', closeImage);
+        
+        // Close on mouse leave from overlay
+        overlay.addEventListener('mouseleave', closeImage);
+        
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && currentImage) {
+                closeImage();
+            }
+        });
     }
     
     addTouchSupport() {
