@@ -5,11 +5,11 @@ const getImages = require('./api/images');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// API endpoint for getting images - MUST come before static files
+app.get('/api/images', getImages);
+
 // Serve static files from the current directory
 app.use(express.static(__dirname));
-
-// API endpoint for getting images
-app.get('/api/images', getImages);
 
 // Serve index.html for the root route
 app.get('/', (req, res) => {
