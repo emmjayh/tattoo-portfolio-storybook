@@ -297,8 +297,11 @@ body {
     align-items: center;
     position: relative;
     overflow: hidden;
-    background: inherit;
+    background: #fdfdf8;
     opacity: 1;
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 /* Cover page styles */
@@ -361,6 +364,9 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 .gallery-content img {
@@ -370,9 +376,14 @@ body {
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     margin-bottom: 40px;
-    will-change: transform;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    border: none;
+    outline: none;
+    display: block;
+    opacity: 1;
+    transition: none;
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 .gallery-info {

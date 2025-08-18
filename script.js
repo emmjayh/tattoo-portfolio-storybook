@@ -271,7 +271,7 @@ class BookGallery {
             
             // Start the flip animation
             requestAnimationFrame(() => {
-                this.flippingPage.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(-180deg)';
                 
                 // Show underlying pages halfway through
@@ -280,7 +280,7 @@ class BookGallery {
                     this.leftPage.style.opacity = '1';
                     this.rightPage.style.opacity = '1';
                     this.rightPage.style.zIndex = '10';
-                }, 500);
+                }, 400);
                 
                 // Clean up after animation
                 setTimeout(() => {
@@ -293,7 +293,7 @@ class BookGallery {
                     this.updateCounter();
                     this.preloadAdjacentPages(); // Preload for next turn
                     this.isAnimating = false;
-                }, 1000);
+                }, 800);
             });
             
         } else {
@@ -338,7 +338,7 @@ class BookGallery {
             
             // Animate the page flipping from left to right
             requestAnimationFrame(() => {
-                this.flippingPage.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(180deg)';
                 
                 // Show underlying pages halfway through
@@ -346,7 +346,7 @@ class BookGallery {
                     this.currentSpread--;
                     this.leftPage.style.opacity = '1';
                     this.rightPage.style.opacity = '1';
-                }, 500);
+                }, 400);
                 
                 // Clean up after animation
                 setTimeout(() => {
@@ -359,7 +359,7 @@ class BookGallery {
                     this.updateCounter();
                     this.preloadAdjacentPages(); // Preload for next turn
                     this.isAnimating = false;
-                }, 1000);
+                }, 800);
             });
         }
     }
