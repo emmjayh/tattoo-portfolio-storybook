@@ -7,6 +7,7 @@ class BookGallery {
         this.hoverTimeout = null;
         this.hoverDelay = 1000; // 1 second hover delay
         this.pages = [];
+        this.preloadedContent = {}; // Smart content cache
         
         this.init();
     }
@@ -26,6 +27,9 @@ class BookGallery {
         
         // Initialize both pages with proper content
         this.updateSpread();
+        
+        // Preload adjacent pages for smoother transitions
+        this.preloadAdjacentPages();
         
         // Bind events
         this.bindEvents();
@@ -171,9 +175,9 @@ class BookGallery {
             
             // Clone the right page for flipping
             this.flippingPage.innerHTML = `
-                <div class="page-inner">${this.rightPage.querySelector('.page-inner').innerHTML}</div>
-                <div class="page-back-side">
-                    <div class="page-inner">${nextLeftContent}</div>
+                <div class="page-inner" style="background: #fdfdf8;">${this.rightPage.querySelector('.page-inner').innerHTML}</div>
+                <div class="page-back-side" style="background: #f0f0e8;">
+                    <div class="page-inner" style="background: #f0f0e8;">${nextLeftContent}</div>
                 </div>
             `;
             this.flippingPage.style.display = 'block';
@@ -183,10 +187,11 @@ class BookGallery {
             this.flippingPage.style.transform = 'rotateY(0deg)';
             this.flippingPage.style.transformOrigin = 'left center';
             this.flippingPage.style.zIndex = '100';
+            this.flippingPage.style.backgroundColor = '#fdfdf8';
             this.flippingPage.classList.add('right-page');
             
-            // Hide original right page
-            this.rightPage.style.opacity = '0';
+            // Keep original right page visible but underneath
+            this.rightPage.style.zIndex = '1';
             
             // Start the flip animation
             requestAnimationFrame(() => {
@@ -196,18 +201,21 @@ class BookGallery {
                 // Update content halfway through
                 setTimeout(() => {
                     this.currentSpread++;
-                    this.rightPage.innerHTML = `<div class="page-inner">${nextRightContent}</div>`;
-                    this.rightPage.style.opacity = '1';
+                    this.rightPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${nextRightContent}</div>`;
+                    this.rightPage.style.zIndex = '10';
                 }, 500);
                 
                 // Clean up after animation
                 setTimeout(() => {
-                    this.leftPage.innerHTML = `<div class="page-inner">${nextLeftContent}</div>`;
+                    this.leftPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${nextLeftContent}</div>`;
+                    this.leftPage.style.zIndex = '10';
+                    this.rightPage.style.zIndex = '10';
                     this.flippingPage.style.display = 'none';
                     this.flippingPage.style.transform = '';
                     this.flippingPage.style.transition = '';
                     this.flippingPage.classList.remove('right-page');
                     this.updateCounter();
+                    this.preloadAdjacentPages(); // Preload for next turn
                     this.isAnimating = false;
                 }, 1000);
             });
@@ -219,9 +227,9 @@ class BookGallery {
             
             // Set up flipping page at left side, already flipped
             this.flippingPage.innerHTML = `
-                <div class="page-inner">${prevRightContent}</div>
-                <div class="page-back-side">
-                    <div class="page-inner">${this.leftPage.querySelector('.page-inner').innerHTML}</div>
+                <div class="page-inner" style="background: #fdfdf8;">${prevRightContent}</div>
+                <div class="page-back-side" style="background: #f0f0e8;">
+                    <div class="page-inner" style="background: #f0f0e8;">${this.leftPage.querySelector('.page-inner').innerHTML}</div>
                 </div>
             `;
             this.flippingPage.style.display = 'block';
@@ -231,10 +239,11 @@ class BookGallery {
             this.flippingPage.style.transform = 'rotateY(-180deg)';
             this.flippingPage.style.transformOrigin = 'right center';
             this.flippingPage.style.zIndex = '100';
+            this.flippingPage.style.backgroundColor = '#f0f0e8';
             this.flippingPage.classList.add('left-page');
             
-            // Hide original left page
-            this.leftPage.style.opacity = '0';
+            // Keep original left page visible but underneath
+            this.leftPage.style.zIndex = '1';
             
             // Animate the page flipping back to right
             requestAnimationFrame(() => {
@@ -244,18 +253,21 @@ class BookGallery {
                 // Update content halfway through
                 setTimeout(() => {
                     this.currentSpread--;
-                    this.leftPage.innerHTML = `<div class="page-inner">${prevLeftContent}</div>`;
-                    this.leftPage.style.opacity = '1';
+                    this.leftPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${prevLeftContent}</div>`;
+                    this.leftPage.style.zIndex = '10';
                 }, 500);
                 
                 // Clean up after animation
                 setTimeout(() => {
-                    this.rightPage.innerHTML = `<div class="page-inner">${prevRightContent}</div>`;
+                    this.rightPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${prevRightContent}</div>`;
+                    this.leftPage.style.zIndex = '10';
+                    this.rightPage.style.zIndex = '10';
                     this.flippingPage.style.display = 'none';
                     this.flippingPage.style.transform = '';
                     this.flippingPage.style.transition = '';
                     this.flippingPage.classList.remove('left-page');
                     this.updateCounter();
+                    this.preloadAdjacentPages(); // Preload for next turn
                     this.isAnimating = false;
                 }, 1000);
             });
@@ -269,20 +281,26 @@ class BookGallery {
         
         // Update left page
         if (leftPageIndex < this.pages.length) {
-            this.leftPage.innerHTML = `<div class="page-inner">${this.pages[leftPageIndex].content}</div>`;
+            this.leftPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${this.pages[leftPageIndex].content}</div>`;
             this.leftPage.style.visibility = 'visible';
+            this.leftPage.style.backgroundColor = '#fdfdf8';
+            this.leftPage.style.zIndex = '10';
         } else {
-            this.leftPage.innerHTML = '<div class="page-inner blank-page"></div>';
+            this.leftPage.innerHTML = '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             this.leftPage.style.visibility = 'visible';
+            this.leftPage.style.backgroundColor = '#fdfdf8';
         }
         
         // Update right page
         if (rightPageIndex < this.pages.length) {
-            this.rightPage.innerHTML = `<div class="page-inner">${this.pages[rightPageIndex].content}</div>`;
+            this.rightPage.innerHTML = `<div class="page-inner" style="background: #fdfdf8;">${this.pages[rightPageIndex].content}</div>`;
             this.rightPage.style.visibility = 'visible';
+            this.rightPage.style.backgroundColor = '#fdfdf8';
+            this.rightPage.style.zIndex = '10';
         } else {
-            this.rightPage.innerHTML = '<div class="page-inner blank-page"></div>';
+            this.rightPage.innerHTML = '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             this.rightPage.style.visibility = 'visible';
+            this.rightPage.style.backgroundColor = '#fdfdf8';
         }
         
         // Update page counter
@@ -297,6 +315,37 @@ class BookGallery {
             this.pageCounter.textContent = 'Cover';
         } else {
             this.pageCounter.textContent = `Pages ${leftPage}-${rightPage}`;
+        }
+    }
+    
+    preloadAdjacentPages() {
+        // Preload next and previous pages for smoother transitions
+        const maxSpreads = Math.ceil(this.totalPages / 2);
+        
+        // Preload next spread
+        if (this.currentSpread < maxSpreads - 1) {
+            const nextLeftIndex = (this.currentSpread + 1) * 2;
+            const nextRightIndex = (this.currentSpread + 1) * 2 + 1;
+            
+            if (this.pages[nextLeftIndex]) {
+                this.preloadedContent[`left-${nextLeftIndex}`] = this.pages[nextLeftIndex].content;
+            }
+            if (this.pages[nextRightIndex]) {
+                this.preloadedContent[`right-${nextRightIndex}`] = this.pages[nextRightIndex].content;
+            }
+        }
+        
+        // Preload previous spread
+        if (this.currentSpread > 0) {
+            const prevLeftIndex = (this.currentSpread - 1) * 2;
+            const prevRightIndex = (this.currentSpread - 1) * 2 + 1;
+            
+            if (this.pages[prevLeftIndex]) {
+                this.preloadedContent[`left-${prevLeftIndex}`] = this.pages[prevLeftIndex].content;
+            }
+            if (this.pages[prevRightIndex]) {
+                this.preloadedContent[`right-${prevRightIndex}`] = this.pages[prevRightIndex].content;
+            }
         }
     }
     
