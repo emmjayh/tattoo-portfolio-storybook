@@ -588,7 +588,146 @@ body {
         inset 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-/* Mobile adjustments */
+/* Responsive breakpoints for different screen sizes */
+
+/* Small tablets and large phones (481px - 768px) */
+@media (max-width: 768px) and (min-width: 481px) {
+    /* Typography scaling */
+    .portfolio-title {
+        font-size: 3rem !important;
+        letter-spacing: 3px !important;
+    }
+    
+    .gallery-info h3 {
+        font-size: 1.8rem;
+    }
+    
+    .gallery-info p {
+        font-size: 1rem;
+    }
+    
+    .contact-content h2 {
+        font-size: 2.2rem;
+    }
+    
+    .page-inner,
+    .gallery-content {
+        padding: 40px !important;
+    }
+    
+    /* Thumbnail grid adjustment */
+    .thumbnail-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+}
+
+/* Mobile phones (320px - 480px) */
+@media (max-width: 480px) {
+    /* Typography for small screens */
+    .portfolio-title {
+        font-size: 2rem !important;
+        letter-spacing: 2px !important;
+        line-height: 1.2;
+    }
+    
+    .portfolio-subtitle {
+        font-size: 1rem;
+    }
+    
+    .gallery-info h3 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+    
+    .gallery-info p {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    .contact-content h2 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+    }
+    
+    .contact-intro {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+    
+    .contact-details a {
+        font-size: 1.1rem;
+    }
+    
+    .social {
+        font-size: 1rem;
+        margin-top: 25px;
+    }
+    
+    /* Smaller padding for mobile */
+    .page-inner,
+    .gallery-content {
+        padding: 15px !important;
+    }
+    
+    /* Page counter smaller on mobile */
+    .page-counter {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        letter-spacing: 1px;
+        bottom: 15px;
+    }
+    
+    /* Thumbnail grid single column for very small screens */
+    .thumbnail-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        padding-right: 5px !important;
+    }
+    
+    /* Navigation arrows smaller on mobile */
+    .nav-arrow {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .nav-arrow svg {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    
+    /* Cover page text overlay adjustment */
+    .cover-left-page div[style*="bottom"] {
+        padding: 10px 15px !important;
+    }
+    
+    .cover-left-page p {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Very small phones (below 320px) */
+@media (max-width: 320px) {
+    .portfolio-title {
+        font-size: 1.5rem !important;
+        letter-spacing: 1px !important;
+    }
+    
+    .gallery-info h3 {
+        font-size: 1.2rem;
+    }
+    
+    .gallery-info p {
+        font-size: 0.8rem;
+    }
+    
+    .page-inner,
+    .gallery-content {
+        padding: 10px !important;
+    }
+}
+
+/* General mobile adjustments (all devices under 768px) */
 @media (max-width: 768px) {
     /* Fix background to cover full viewport */
     .fullscreen-book {
@@ -598,6 +737,18 @@ body {
         position: fixed;
         top: 0;
         left: 0;
+    }
+    
+    /* Ensure text wraps properly */
+    * {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Better image sizing for mobile */
+    img {
+        max-width: 100%;
+        height: auto;
     }
     
     /* Fix book container to fill viewport */

@@ -7,24 +7,48 @@ class BookSpread {
         this.isAnimating = false;
         this.hoverTimeout = null;
         this.hoverDelay = 1000;
-        this.isMobile = window.innerWidth <= 768;
         
-        // Listen for resize to update mobile state
+        // Better device detection - tablets show two pages, phones show one
+        this.updateDeviceType();
+        
+        // Debounced resize handler for better performance
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            const wasMobile = this.isMobile;
-            this.isMobile = window.innerWidth <= 768;
-            if (wasMobile !== this.isMobile) {
-                // Recalculate position when switching between mobile/desktop
-                if (this.isMobile) {
-                    this.currentPage = this.currentSpread * 2;
-                } else {
-                    this.currentSpread = Math.floor(this.currentPage / 2);
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const wasMobile = this.isMobile;
+                this.updateDeviceType();
+                
+                if (wasMobile !== this.isMobile) {
+                    // Recalculate position when switching between mobile/desktop
+                    if (this.isMobile) {
+                        this.currentPage = this.currentSpread * 2;
+                    } else {
+                        this.currentSpread = Math.floor(this.currentPage / 2);
+                    }
+                    this.showCurrent();
+                    this.updateNavigationArrows();
                 }
-                this.showCurrent();
-            }
+            }, 250);
         });
         
         this.init();
+    }
+    
+    updateDeviceType() {
+        const width = window.innerWidth;
+        // Phones under 768px show single page, tablets and up show spreads
+        this.isMobile = width <= 768;
+        this.isTablet = width > 768 && width <= 1024;
+        this.isDesktop = width > 1024;
+    }
+    
+    updateNavigationArrows() {
+        // Remove existing arrows
+        document.querySelectorAll('.nav-arrow').forEach(arrow => arrow.remove());
+        
+        // Re-add arrows based on current view
+        this.showCurrent();
     }
     
     async init() {
@@ -647,13 +671,22 @@ class BookSpread {
     addNavigationArrow(pageElement, direction) {
         const arrow = document.createElement('div');
         arrow.className = `nav-arrow nav-arrow-${direction}`;
+        
+        // Responsive sizing based on device type
+        const isMobileDevice = window.innerWidth <= 480;
+        const isSmallTablet = window.innerWidth <= 768;
+        
+        const arrowSize = isMobileDevice ? '35px' : isSmallTablet ? '40px' : '50px';
+        const arrowPosition = isMobileDevice ? '15px' : isSmallTablet ? '20px' : '30px';
+        const iconSize = isMobileDevice ? '20' : isSmallTablet ? '24' : '30';
+        
         arrow.style.cssText = `
             position: absolute;
-            ${direction === 'next' ? 'right: 30px' : 'left: 30px'};
+            ${direction === 'next' ? `right: ${arrowPosition}` : `left: ${arrowPosition}`};
             top: 50%;
             transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
+            width: ${arrowSize};
+            height: ${arrowSize};
             cursor: pointer;
             z-index: 1000;
             display: flex;
@@ -668,12 +701,12 @@ class BookSpread {
         `;
         
         arrow.innerHTML = `
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="${direction === 'next' 
                     ? 'M9 6L15 12L9 18' 
                     : 'M15 6L9 12L15 18'}" 
                 stroke="#d60270" 
-                stroke-width="3" 
+                stroke-width="${isMobileDevice ? '2' : '3'}" 
                 stroke-linecap="round" 
                 stroke-linejoin="round"/>
             </svg>
