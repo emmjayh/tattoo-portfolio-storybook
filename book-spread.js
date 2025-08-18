@@ -97,40 +97,36 @@ class BookSpread {
             content: `
                 <div class="cover-left-page" style="
                     height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    text-align: center;
-                    background: linear-gradient(135deg, rgba(214,2,112,0.02), rgba(155,79,150,0.02));
                     position: relative;
                     overflow: hidden;
                 ">
                     <img src="images/0_Frontpage.png" alt="Carla Portfolio - Tattoo Artistry & Design Cover" style="
                         width: 100%;
-                        height: calc(100% - 40px);
+                        height: 100%;
                         object-fit: cover;
                         position: absolute;
-                        top: 40px;
+                        top: 0;
                         left: 0;
                         z-index: 1;
                     ">
                     <div style="
                         position: absolute;
-                        bottom: 30px;
+                        bottom: 0;
                         left: 0;
                         right: 0;
-                        padding: 25px;
-                        background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7) 50%, transparent);
+                        padding: 20px 25px;
+                        background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.5) 70%, transparent);
                         z-index: 2;
                     ">
                         <p style="
-                            color: rgba(255,255,255,0.95);
-                            font-size: 1.1rem;
-                            font-style: italic;
+                            color: rgba(255,255,255,1);
+                            font-size: 1.2rem;
+                            font-weight: 300;
+                            letter-spacing: 2px;
                             margin: 0;
                             text-align: center;
-                            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+                            text-shadow: 2px 2px 6px rgba(0,0,0,1);
+                            text-transform: uppercase;
                         ">Carla Portfolio - Tattoo Artistry & Design</p>
                     </div>
                 </div>
