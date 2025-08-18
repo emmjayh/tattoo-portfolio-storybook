@@ -411,9 +411,9 @@ class BookSpread {
             ? this.pages[leftIndex].content 
             : '<div class="blank-page"></div>';
         
-        // Set left page back (previous right page)
-        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
-            ? this.pages[prevRightIndex].content
+        // Set left page back (should show current right page when flipping backward)
+        this.leftPageBack.innerHTML = rightIndex < this.pages.length
+            ? this.pages[rightIndex].content
             : '<div class="blank-page"></div>';
         
         // Set right page front
