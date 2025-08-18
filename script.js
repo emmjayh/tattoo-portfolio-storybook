@@ -462,12 +462,10 @@ document.head.insertAdjacentHTML('beforeend', `
             position: absolute;
             bottom: 40px;
             font-size: 0.9rem;
-            background: linear-gradient(90deg, #d60270 0%, #9b4f96 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #d60270;
             font-style: italic;
             font-weight: 600;
+            opacity: 1;
         }
         
         .left-page .page-number-display {
