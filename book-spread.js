@@ -373,7 +373,7 @@ class BookSpread {
             height: 100%;
             background: #f0f0e8;
             backface-visibility: hidden;
-            transform: rotateY(180deg);
+            transform: rotateY(180deg) scaleX(-1);
             overflow: hidden;
         `;
         this.leftPage.appendChild(this.leftPageBack);
@@ -411,7 +411,7 @@ class BookSpread {
             height: 100%;
             background: #f0f0e8;
             backface-visibility: hidden;
-            transform: rotateY(180deg);
+            transform: rotateY(180deg) scaleX(-1);
             overflow: hidden;
         `;
         this.rightPage.appendChild(this.rightPageBack);
@@ -498,9 +498,9 @@ class BookSpread {
             this.addNavigationArrow(this.leftPageFront, 'prev');
         }
         
-        // Set left page back (previous left page - this becomes visible as we flip backward)
-        this.leftPageBack.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
-            ? this.pages[prevLeftIndex].content
+        // Set left page back (previous right page - becomes the new right page after backward flip)
+        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
+            ? this.pages[prevRightIndex].content
             : '<div class="blank-page"></div>';
         
         // Set right page front
