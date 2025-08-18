@@ -563,6 +563,9 @@ class BookSpread {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') this.turnPage('prev');
             if (e.key === 'ArrowRight') this.turnPage('next');
+            if (e.key === 'Escape' && this.expandedImage) {
+                this.closeExpandedImage();
+            }
         });
         
         // Thumbnail clicks on cover page
@@ -577,6 +580,9 @@ class BookSpread {
                 }
             }
         });
+        
+        // Image expansion on hover
+        this.setupImageExpansion();
     }
     
     startHoverTimer(direction) {
@@ -601,6 +607,95 @@ class BookSpread {
         
         this.hoverLeft.style.background = '';
         this.hoverRight.style.background = '';
+    }
+    
+    setupImageExpansion() {
+        // Create overlay for expanded images
+        this.imageOverlay = document.createElement('div');
+        this.imageOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            z-index: 10000;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        `;
+        document.body.appendChild(this.imageOverlay);
+        
+        // Handle image hover events using delegation
+        document.addEventListener('mouseover', (e) => {
+            // Check if hovering over a gallery image (not thumbnails or cover images)
+            const img = e.target;
+            if (img.tagName === 'IMG' && 
+                img.closest('.gallery-content') && 
+                !img.closest('.cover-thumbnail')) {
+                this.expandImage(img);
+            }
+        });
+        
+        // Close on overlay click
+        this.imageOverlay.addEventListener('click', () => {
+            this.closeExpandedImage();
+        });
+    }
+    
+    expandImage(img) {
+        if (this.expandedImage) return;
+        
+        // Create expanded image
+        this.expandedImage = document.createElement('img');
+        this.expandedImage.src = img.src;
+        this.expandedImage.alt = img.alt;
+        this.expandedImage.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+            z-index: 10001;
+            cursor: pointer;
+        `;
+        
+        // Show overlay and image
+        this.imageOverlay.style.display = 'block';
+        document.body.appendChild(this.expandedImage);
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            this.imageOverlay.style.opacity = '1';
+            this.expandedImage.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+        
+        // Handle mouse leave to close
+        this.expandedImage.addEventListener('mouseleave', () => {
+            this.closeExpandedImage();
+        });
+    }
+    
+    closeExpandedImage() {
+        if (!this.expandedImage) return;
+        
+        // Animate out
+        this.imageOverlay.style.opacity = '0';
+        this.expandedImage.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        
+        // Remove after animation
+        setTimeout(() => {
+            this.imageOverlay.style.display = 'none';
+            if (this.expandedImage) {
+                this.expandedImage.remove();
+                this.expandedImage = null;
+            }
+        }, 300);
     }
 }
 
