@@ -474,15 +474,6 @@ class BookSpread {
         const prevLeftIndex = (spreadIndex - 1) * 2;
         const prevRightIndex = (spreadIndex - 1) * 2 + 1;
         
-        console.log('ShowSpread:', {
-            spreadIndex,
-            leftIndex,
-            rightIndex,
-            prevLeftIndex,
-            prevRightIndex,
-            nextLeftIndex,
-            nextRightIndex
-        });
         
         // Hide left page on mobile, show both on desktop
         if (this.isMobile) {
@@ -508,11 +499,10 @@ class BookSpread {
             this.addNavigationArrow(this.leftPageFront, 'prev');
         }
         
-        // Set left page back (this becomes visible as the new right page when flipping backward)
-        // When we flip backward, we're going from spread N to spread N-1
-        // The back of the left page should show what will be the new right page: pages[(N-1)*2 + 1]
-        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
-            ? this.pages[prevRightIndex].content
+        // Set left page back (shows the previous LEFT page when flipping backward)
+        // When flipping backward, the back shows the destination left page
+        this.leftPageBack.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
+            ? this.pages[prevLeftIndex].content
             : '<div class="blank-page"></div>';
         
         // Set right page front
