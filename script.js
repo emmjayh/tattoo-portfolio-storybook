@@ -136,9 +136,9 @@ class BookGallery {
         
         // Visual feedback
         if (direction === 'prev') {
-            this.hoverLeft.style.background = 'linear-gradient(to right, rgba(212, 175, 55, 0.06), transparent)';
+            this.hoverLeft.style.background = 'linear-gradient(to right, rgba(214, 2, 112, 0.08), transparent)';
         } else {
-            this.hoverRight.style.background = 'linear-gradient(to left, rgba(212, 175, 55, 0.06), transparent)';
+            this.hoverRight.style.background = 'linear-gradient(to left, rgba(155, 79, 150, 0.08), transparent)';
         }
         
         // Start timer
@@ -395,8 +395,12 @@ document.head.insertAdjacentHTML('beforeend', `
             position: absolute;
             bottom: 40px;
             font-size: 0.9rem;
-            color: #999;
+            background: linear-gradient(90deg, #d60270 0%, #9b4f96 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-style: italic;
+            font-weight: 600;
         }
         
         .left-page .page-number-display {
