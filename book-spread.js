@@ -373,7 +373,7 @@ class BookSpread {
             height: 100%;
             background: #f0f0e8;
             backface-visibility: hidden;
-            transform: rotateY(180deg) scaleX(-1);
+            transform: rotateY(180deg);
             overflow: hidden;
         `;
         this.leftPage.appendChild(this.leftPageBack);
@@ -411,7 +411,7 @@ class BookSpread {
             height: 100%;
             background: #f0f0e8;
             backface-visibility: hidden;
-            transform: rotateY(180deg) scaleX(-1);
+            transform: rotateY(180deg);
             overflow: hidden;
         `;
         this.rightPage.appendChild(this.rightPageBack);
