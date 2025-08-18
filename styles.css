@@ -770,7 +770,10 @@ body {
     }
     
     /* Hide page stacks and spine on mobile */
-    .page-stack,
+    .page-stack {
+        display: none !important;
+    }
+    
     .book-spine {
         display: none !important;
     }

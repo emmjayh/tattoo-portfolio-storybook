@@ -26,6 +26,8 @@ class BookSpread {
                     } else {
                         this.currentSpread = Math.floor(this.currentPage / 2);
                     }
+                    // Rebuild book structure for new layout
+                    this.setupBook();
                     this.showCurrent();
                     this.updateNavigationArrows();
                 }
@@ -327,11 +329,12 @@ class BookSpread {
         this.prevLeftPage.style.cssText = `
             position: absolute;
             left: 0;
-            width: 50%;
+            width: ${this.isMobile ? '0' : '50%'};
             height: 100%;
             background: #fdfdf8;
             z-index: 8;
             overflow: hidden;
+            display: ${this.isMobile ? 'none' : 'block'};
         `;
         this.book.appendChild(this.prevLeftPage);
         
@@ -340,12 +343,13 @@ class BookSpread {
         this.leftPage.style.cssText = `
             position: absolute;
             left: 0;
-            width: 50%;
+            width: ${this.isMobile ? '0' : '50%'};
             height: 100%;
             transform-origin: right center;
             transform-style: preserve-3d;
             z-index: 15;
             overflow: hidden;
+            display: ${this.isMobile ? 'none' : 'block'};
         `;
         this.book.appendChild(this.leftPage);
         
@@ -378,8 +382,8 @@ class BookSpread {
         this.rightPage = document.createElement('div');
         this.rightPage.style.cssText = `
             position: absolute;
-            right: 0;
-            width: 50%;
+            ${this.isMobile ? 'left: 0' : 'right: 0'};
+            width: ${this.isMobile ? '100%' : '50%'};
             height: 100%;
             transform-origin: left center;
             transform-style: preserve-3d;
@@ -416,8 +420,8 @@ class BookSpread {
         this.nextRightPage = document.createElement('div');
         this.nextRightPage.style.cssText = `
             position: absolute;
-            right: 0;
-            width: 50%;
+            ${this.isMobile ? 'left: 0' : 'right: 0'};
+            width: ${this.isMobile ? '100%' : '50%'};
             height: 100%;
             background: #fdfdf8;
             z-index: 5;
@@ -470,9 +474,14 @@ class BookSpread {
         const prevLeftIndex = (spreadIndex - 1) * 2;
         const prevRightIndex = (spreadIndex - 1) * 2 + 1;
         
-        // Always show both pages
-        this.leftPage.style.display = 'block';
-        this.prevLeftPage.style.display = 'block';
+        // Hide left page on mobile, show both on desktop
+        if (this.isMobile) {
+            this.leftPage.style.display = 'none';
+            this.prevLeftPage.style.display = 'none';
+        } else {
+            this.leftPage.style.display = 'block';
+            this.prevLeftPage.style.display = 'block';
+        }
         
         // Set previous left page (for backward flip)
         this.prevLeftPage.innerHTML = prevLeftIndex >= 0 && prevLeftIndex < this.pages.length
