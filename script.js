@@ -240,14 +240,8 @@ class BookGallery {
                 ? this.renderedPages.get(nextRightIndex)
                 : (this.pages[nextRightIndex] ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[nextRightIndex].content}</div>` : '<div class="page-inner" style="background: #fdfdf8;"></div>');
             
-            // Store current right page content BEFORE any changes
+            // Store current right page content (don't change underlying pages yet)
             const currentRightHTML = this.rightPage.innerHTML;
-            
-            // Pre-update the underlying pages immediately (hidden)
-            this.leftPage.innerHTML = nextLeftContent;
-            this.rightPage.innerHTML = nextRightContent;
-            this.leftPage.style.opacity = '0';
-            this.rightPage.style.opacity = '0';
             
             // Clone the right page for flipping
             this.flippingPage.innerHTML = `
@@ -266,21 +260,23 @@ class BookGallery {
             this.flippingPage.style.backgroundColor = '#fdfdf8';
             this.flippingPage.classList.add('right-page');
             
-            // Keep original right page visible but underneath
-            this.rightPage.style.zIndex = '1';
+            // Hide original right page
+            this.rightPage.style.visibility = 'hidden';
             
             // Start the flip animation
             requestAnimationFrame(() => {
                 this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(-180deg)';
                 
-                // Show underlying pages halfway through
+                // Update content and show pages after flip completes
                 setTimeout(() => {
                     this.currentSpread++;
-                    this.leftPage.style.opacity = '1';
-                    this.rightPage.style.opacity = '1';
+                    this.leftPage.innerHTML = nextLeftContent;
+                    this.rightPage.innerHTML = nextRightContent;
+                    this.leftPage.style.visibility = 'visible';
+                    this.rightPage.style.visibility = 'visible';
                     this.rightPage.style.zIndex = '10';
-                }, 400);
+                }, 800);
                 
                 // Clean up after animation
                 setTimeout(() => {
@@ -307,14 +303,8 @@ class BookGallery {
                 ? this.renderedPages.get(prevRightIndex)
                 : (this.pages[prevRightIndex] ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[prevRightIndex].content}</div>` : '<div class="page-inner" style="background: #fdfdf8;"></div>');
             
-            // Store current left page content BEFORE any changes
+            // Store current left page content (don't change underlying pages yet)
             const currentLeftHTML = this.leftPage.innerHTML;
-            
-            // Pre-update the underlying pages immediately (hidden)
-            this.leftPage.innerHTML = prevLeftContent;
-            this.rightPage.innerHTML = prevRightContent;
-            this.leftPage.style.opacity = '0';
-            this.rightPage.style.opacity = '0';
             
             // Set up flipping page as the current left page, starting in normal position
             this.flippingPage.innerHTML = `
@@ -334,19 +324,21 @@ class BookGallery {
             this.flippingPage.classList.add('left-page');
             
             // Hide original left page
-            this.leftPage.style.opacity = '0';
+            this.leftPage.style.visibility = 'hidden';
             
             // Animate the page flipping from left to right
             requestAnimationFrame(() => {
                 this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(180deg)';
                 
-                // Show underlying pages halfway through
+                // Update content and show pages after flip completes
                 setTimeout(() => {
                     this.currentSpread--;
-                    this.leftPage.style.opacity = '1';
-                    this.rightPage.style.opacity = '1';
-                }, 400);
+                    this.leftPage.innerHTML = prevLeftContent;
+                    this.rightPage.innerHTML = prevRightContent;
+                    this.leftPage.style.visibility = 'visible';
+                    this.rightPage.style.visibility = 'visible';
+                }, 800);
                 
                 // Clean up after animation
                 setTimeout(() => {
