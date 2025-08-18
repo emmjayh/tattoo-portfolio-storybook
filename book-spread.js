@@ -92,11 +92,10 @@ class BookSpread {
     loadPageContent() {
         this.pages = [];
         
-        // Page 0: Left side of cover with Carla Portfolio title
+        // Page 0: Left side of cover with frontpage image
         this.pages.push({
             content: `
                 <div class="cover-left-page" style="
-                    padding: 60px;
                     height: 100%;
                     display: flex;
                     flex-direction: column;
@@ -104,36 +103,34 @@ class BookSpread {
                     align-items: center;
                     text-align: center;
                     background: linear-gradient(135deg, rgba(214,2,112,0.02), rgba(155,79,150,0.02));
+                    position: relative;
+                    overflow: hidden;
                 ">
-                    <h1 class="portfolio-title" style="
-                        font-size: 5rem;
-                        font-weight: 300;
-                        letter-spacing: 10px;
-                        background: linear-gradient(135deg, #d60270 0%, #9b4f96 50%, #0038a8 100%);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        background-clip: text;
-                        margin-bottom: 30px;
-                        text-transform: uppercase;
-                        text-shadow: 0 0 40px rgba(214, 2, 112, 0.3);
-                    ">Carla<br>Portfolio</h1>
-                    <p style="
-                        font-size: 1.4rem;
-                        color: #666;
-                        font-style: italic;
-                        margin-bottom: 20px;
-                    ">Tattoo Artistry & Design</p>
+                    <img src="images/0_Frontpage.png" alt="Carla Portfolio - Tattoo Artistry & Design Cover" style="
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        z-index: 1;
+                    ">
                     <div style="
-                        width: 100px;
-                        height: 2px;
-                        background: linear-gradient(90deg, #d60270, #9b4f96, #0038a8);
-                        margin: 30px auto;
-                    "></div>
-                    <p style="
-                        font-size: 1rem;
-                        color: #999;
-                        margin-top: 20px;
-                    ">Turn the page to explore →</p>
+                        position: absolute;
+                        bottom: 20px;
+                        left: 0;
+                        right: 0;
+                        padding: 20px;
+                        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+                        z-index: 2;
+                    ">
+                        <p style="
+                            color: rgba(255,255,255,0.9);
+                            font-size: 0.9rem;
+                            font-style: italic;
+                            margin: 0;
+                        ">Carla Portfolio - Tattoo Artistry & Design</p>
+                    </div>
                 </div>
             `
         });
