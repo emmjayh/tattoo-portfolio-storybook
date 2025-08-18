@@ -71,13 +71,108 @@ class BookSpread {
             content: '<div class="blank-page"></div>'
         });
         
-        // Cover page (right side)
+        // Create thumbnail gallery for cover
+        const templates = document.querySelectorAll('.page-template');
+        let thumbnailsHtml = '';
+        
+        templates.forEach((template, index) => {
+            const img = template.querySelector('img');
+            if (img && template.dataset.page !== 'contact') {
+                thumbnailsHtml += `
+                    <div class="cover-thumbnail" data-page="${index + 2}">
+                        <img src="${img.src}" alt="${img.alt}">
+                    </div>
+                `;
+            }
+        });
+        
+        // Cover page (right side) with gallery preview
         this.pages.push({
             content: `
-                <div class="page-content" style="padding: 80px; text-align: center;">
-                    <h1 class="portfolio-title">Ink Stories</h1>
-                    <p class="portfolio-subtitle">Tattoo Artistry Portfolio</p>
-                    <p class="instruction">← Hover over the page edges to turn →</p>
+                <div class="cover-page" style="padding: 40px; height: 100%; display: flex; flex-direction: column;">
+                    <div class="cover-header" style="text-align: center; margin-bottom: 30px;">
+                        <h1 class="portfolio-title" style="
+                            font-size: 4.5rem;
+                            font-weight: 300;
+                            letter-spacing: 8px;
+                            background: linear-gradient(135deg, #d60270 0%, #9b4f96 50%, #0038a8 100%);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                            margin-bottom: 20px;
+                            text-transform: uppercase;
+                            text-shadow: 0 0 30px rgba(214, 2, 112, 0.3);
+                        ">Carla Portfolio</h1>
+                        <p style="
+                            font-size: 1.2rem;
+                            color: #666;
+                            font-style: italic;
+                            margin-bottom: 15px;
+                        ">Explore My Tattoo Artistry</p>
+                        <p style="
+                            font-size: 0.9rem;
+                            color: #999;
+                        ">← Flip pages or click thumbnails below →</p>
+                    </div>
+                    
+                    <div class="thumbnail-container" style="
+                        flex: 1;
+                        overflow-y: auto;
+                        overflow-x: hidden;
+                        padding: 20px 10px;
+                        background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(240,240,240,0.3));
+                        border-radius: 10px;
+                        box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+                    ">
+                        <div class="thumbnail-grid" style="
+                            display: grid;
+                            grid-template-columns: repeat(3, 1fr);
+                            gap: 15px;
+                            padding-right: 10px;
+                        ">
+                            ${thumbnailsHtml}
+                        </div>
+                    </div>
+                    
+                    <style>
+                        .thumbnail-container::-webkit-scrollbar {
+                            width: 8px;
+                        }
+                        .thumbnail-container::-webkit-scrollbar-track {
+                            background: rgba(0,0,0,0.05);
+                            border-radius: 4px;
+                        }
+                        .thumbnail-container::-webkit-scrollbar-thumb {
+                            background: linear-gradient(135deg, #d60270, #9b4f96);
+                            border-radius: 4px;
+                        }
+                        .thumbnail-container::-webkit-scrollbar-thumb:hover {
+                            background: linear-gradient(135deg, #9b4f96, #0038a8);
+                        }
+                        .cover-thumbnail {
+                            aspect-ratio: 1;
+                            overflow: hidden;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                            background: #fff;
+                        }
+                        .cover-thumbnail:hover {
+                            transform: scale(1.1);
+                            box-shadow: 0 4px 15px rgba(214, 2, 112, 0.4);
+                            z-index: 10;
+                        }
+                        .cover-thumbnail img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                            transition: transform 0.3s ease;
+                        }
+                        .cover-thumbnail:hover img {
+                            transform: scale(1.1);
+                        }
+                    </style>
                 </div>
             `
         });
@@ -309,6 +404,62 @@ class BookSpread {
         }
     }
     
+    jumpToSpread(targetSpread) {
+        if (this.isAnimating) return;
+        
+        const maxSpreads = Math.ceil(this.pages.length / 2);
+        if (targetSpread < 0 || targetSpread >= maxSpreads) return;
+        
+        // If we're already at the target spread, do nothing
+        if (targetSpread === this.currentSpread) return;
+        
+        // Animate a quick page flip effect
+        this.isAnimating = true;
+        
+        // Determine direction for visual feedback
+        if (targetSpread > this.currentSpread) {
+            // Going forward - quick flip animation
+            this.rightPage.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            this.rightPage.style.transform = 'rotateY(-90deg)';
+            
+            setTimeout(() => {
+                this.currentSpread = targetSpread;
+                this.rightPage.style.transition = 'none';
+                this.rightPage.style.transform = 'rotateY(0deg)';
+                this.showSpread(this.currentSpread);
+                
+                // Animate the page settling
+                this.rightPage.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.rightPage.style.transform = 'rotateY(0deg)';
+                
+                setTimeout(() => {
+                    this.rightPage.style.transition = 'none';
+                    this.isAnimating = false;
+                }, 300);
+            }, 400);
+        } else {
+            // Going backward - quick flip animation
+            this.leftPage.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            this.leftPage.style.transform = 'rotateY(90deg)';
+            
+            setTimeout(() => {
+                this.currentSpread = targetSpread;
+                this.leftPage.style.transition = 'none';
+                this.leftPage.style.transform = 'rotateY(0deg)';
+                this.showSpread(this.currentSpread);
+                
+                // Animate the page settling
+                this.leftPage.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.leftPage.style.transform = 'rotateY(0deg)';
+                
+                setTimeout(() => {
+                    this.leftPage.style.transition = 'none';
+                    this.isAnimating = false;
+                }, 300);
+            }, 400);
+        }
+    }
+    
     updateCounter() {
         const leftNum = this.currentSpread * 2 + 1;
         const rightNum = this.currentSpread * 2 + 2;
@@ -336,6 +487,19 @@ class BookSpread {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') this.turnPage('prev');
             if (e.key === 'ArrowRight') this.turnPage('next');
+        });
+        
+        // Thumbnail clicks on cover page
+        document.addEventListener('click', (e) => {
+            const thumbnail = e.target.closest('.cover-thumbnail');
+            if (thumbnail) {
+                const targetPage = parseInt(thumbnail.dataset.page);
+                if (targetPage) {
+                    // Calculate which spread contains this page
+                    const targetSpread = Math.floor(targetPage / 2);
+                    this.jumpToSpread(targetSpread);
+                }
+            }
         });
     }
     
