@@ -293,7 +293,7 @@ class BookSpread {
             width: 50%;
             height: 100%;
             background: #fdfdf8;
-            z-index: 5;
+            z-index: 8;
             overflow: hidden;
         `;
         this.book.appendChild(this.prevLeftPage);
@@ -307,7 +307,7 @@ class BookSpread {
             height: 100%;
             transform-origin: right center;
             transform-style: preserve-3d;
-            z-index: 10;
+            z-index: 15;
             overflow: hidden;
         `;
         this.book.appendChild(this.leftPage);
@@ -411,9 +411,9 @@ class BookSpread {
             ? this.pages[leftIndex].content 
             : '<div class="blank-page"></div>';
         
-        // Set left page back (should show current right page when flipping backward)
-        this.leftPageBack.innerHTML = rightIndex < this.pages.length
-            ? this.pages[rightIndex].content
+        // Set left page back (should show previous right page when flipping backward)
+        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
+            ? this.pages[prevRightIndex].content
             : '<div class="blank-page"></div>';
         
         // Set right page front
