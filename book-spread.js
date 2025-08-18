@@ -499,9 +499,11 @@ class BookSpread {
         }
         
         // Set left page back (previous right page - becomes the new right page after backward flip)
-        this.leftPageBack.innerHTML = prevRightIndex >= 0 && prevRightIndex < this.pages.length
+        // Need to wrap in a div that un-mirrors the content
+        const prevRightContent = prevRightIndex >= 0 && prevRightIndex < this.pages.length
             ? this.pages[prevRightIndex].content
             : '<div class="blank-page"></div>';
+        this.leftPageBack.innerHTML = `<div style="transform: scaleX(-1); width: 100%; height: 100%;">${prevRightContent}</div>`;
         
         // Set right page front
         this.rightPageFront.innerHTML = rightIndex < this.pages.length
