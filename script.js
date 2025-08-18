@@ -216,8 +216,12 @@ class BookGallery {
             // Forward flip: right page flips to left
             const nextLeftIndex = this.currentSpread * 2 + 2;
             const nextRightIndex = this.currentSpread * 2 + 3;
-            const nextLeftContent = this.renderedPages.get(nextLeftIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
-            const nextRightContent = this.renderedPages.get(nextRightIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
+            const nextLeftContent = this.renderedPages.has(nextLeftIndex) 
+                ? this.renderedPages.get(nextLeftIndex)
+                : (this.pages[nextLeftIndex] ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[nextLeftIndex].content}</div>` : '<div class="page-inner" style="background: #fdfdf8;"></div>');
+            const nextRightContent = this.renderedPages.has(nextRightIndex)
+                ? this.renderedPages.get(nextRightIndex)
+                : (this.pages[nextRightIndex] ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[nextRightIndex].content}</div>` : '<div class="page-inner" style="background: #fdfdf8;"></div>');
             
             // Store current right page content BEFORE any changes
             const currentRightHTML = this.rightPage.innerHTML;
@@ -279,8 +283,12 @@ class BookGallery {
             // Backward flip: left page flips from left to right
             const prevLeftIndex = this.currentSpread * 2 - 2;
             const prevRightIndex = this.currentSpread * 2 - 1;
-            const prevLeftContent = this.renderedPages.get(prevLeftIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
-            const prevRightContent = this.renderedPages.get(prevRightIndex) || '<div class="page-inner" style="background: #fdfdf8;"></div>';
+            const prevLeftContent = this.renderedPages.has(prevLeftIndex)
+                ? this.renderedPages.get(prevLeftIndex)
+                : (this.pages[prevLeftIndex] ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[prevLeftIndex].content}</div>` : '<div class="page-inner" style="background: #fdfdf8;"></div>');
+            const prevRightContent = this.renderedPages.has(prevRightIndex)
+                ? this.renderedPages.get(prevRightIndex)
+                : (this.pages[prevRightIndex] ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[prevRightIndex].content}</div>` : '<div class="page-inner" style="background: #fdfdf8;"></div>');
             
             // Store current left page content BEFORE any changes
             const currentLeftHTML = this.leftPage.innerHTML;
@@ -344,9 +352,12 @@ class BookGallery {
         const leftPageIndex = this.currentSpread * 2;
         const rightPageIndex = this.currentSpread * 2 + 1;
         
-        // Update left page using cached content
-        if (leftPageIndex < this.pages.length && this.renderedPages.has(leftPageIndex)) {
-            this.leftPage.innerHTML = this.renderedPages.get(leftPageIndex);
+        // Update left page - use direct content if cache not ready
+        if (leftPageIndex < this.pages.length) {
+            const content = this.renderedPages.has(leftPageIndex) 
+                ? this.renderedPages.get(leftPageIndex)
+                : `<div class="page-inner" style="background: #fdfdf8;">${this.pages[leftPageIndex].content}</div>`;
+            this.leftPage.innerHTML = content;
             this.leftPage.style.visibility = 'visible';
             this.leftPage.style.backgroundColor = '#fdfdf8';
             this.leftPage.style.opacity = '1';
@@ -358,9 +369,12 @@ class BookGallery {
             this.leftPage.style.opacity = '1';
         }
         
-        // Update right page using cached content
-        if (rightPageIndex < this.pages.length && this.renderedPages.has(rightPageIndex)) {
-            this.rightPage.innerHTML = this.renderedPages.get(rightPageIndex);
+        // Update right page - use direct content if cache not ready
+        if (rightPageIndex < this.pages.length) {
+            const content = this.renderedPages.has(rightPageIndex)
+                ? this.renderedPages.get(rightPageIndex)
+                : `<div class="page-inner" style="background: #fdfdf8;">${this.pages[rightPageIndex].content}</div>`;
+            this.rightPage.innerHTML = content;
             this.rightPage.style.visibility = 'visible';
             this.rightPage.style.backgroundColor = '#fdfdf8';
             this.rightPage.style.opacity = '1';
