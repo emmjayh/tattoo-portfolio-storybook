@@ -276,10 +276,10 @@ class BookGallery {
         
         if (direction === 'next') {
             // Forward flip: right page flips to left
-            // Store current content BEFORE incrementing
+            // Store current content BEFORE changes
             const currentRightContent = this.rightPage.innerHTML;
             
-            // Increment spread FIRST to get the new pages
+            // Increment spread
             this.currentSpread++;
             
             // Get new page content
@@ -293,48 +293,49 @@ class BookGallery {
                 ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[rightPageIndex].content}</div>`
                 : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             
-            // Create flipping page with current right page on front
+            // Update pages underneath immediately (they're hidden)
+            this.leftPage.innerHTML = newLeftContent;
+            this.rightPage.innerHTML = newRightContent;
+            this.rightPage.style.opacity = '0'; // Keep hidden initially
+            
+            // Setup flipping page with SOLID backgrounds
             this.flippingPage.innerHTML = '';
+            this.flippingPage.style.background = '#fdfdf8';
             
-            // Front side - current right page content
-            const frontSide = document.createElement('div');
-            frontSide.innerHTML = currentRightContent;
-            this.flippingPage.appendChild(frontSide.firstElementChild);
+            // Front side - the page we're flipping (old right page)
+            const frontDiv = document.createElement('div');
+            frontDiv.style.cssText = 'width: 100%; height: 100%; background: #fdfdf8; position: absolute; backface-visibility: hidden;';
+            frontDiv.innerHTML = currentRightContent;
+            this.flippingPage.appendChild(frontDiv);
             
-            // Back side - shows what will be the NEW LEFT page after flip completes
-            const backSide = document.createElement('div');
-            backSide.className = 'page-back-side';
-            backSide.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0e8; transform: rotateY(180deg); backface-visibility: hidden;';
-            backSide.innerHTML = newLeftContent;
-            this.flippingPage.appendChild(backSide);
+            // Back side - SOLID page, no content needed
+            const backDiv = document.createElement('div');
+            backDiv.style.cssText = 'width: 100%; height: 100%; background: #f0f0e8; position: absolute; transform: rotateY(180deg); backface-visibility: hidden;';
+            this.flippingPage.appendChild(backDiv);
             
-            // Setup flipping page
+            // Position and show flipping page
             this.flippingPage.style.display = 'block';
             this.flippingPage.style.right = '0';
             this.flippingPage.style.left = 'auto';
             this.flippingPage.style.width = '50%';
+            this.flippingPage.style.height = '100%';
             this.flippingPage.style.transform = 'rotateY(0deg)';
             this.flippingPage.style.transformOrigin = 'left center';
+            this.flippingPage.style.transformStyle = 'preserve-3d';
             this.flippingPage.style.zIndex = '100';
             
-            // Hide right page during flip
-            this.rightPage.style.opacity = '0';
-            
-            // DON'T update left page yet - keep the old content visible
-            
-            // Start flip animation
+            // Animate the flip
             requestAnimationFrame(() => {
                 this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(-180deg)';
                 
-                // After flip completes
+                // When flip is halfway, show the new right page
                 setTimeout(() => {
-                    // NOW update both pages with new content
-                    this.leftPage.innerHTML = newLeftContent;
-                    this.rightPage.innerHTML = newRightContent;
                     this.rightPage.style.opacity = '1';
-                    
-                    // Hide flipping page
+                }, 400);
+                
+                // Clean up after animation
+                setTimeout(() => {
                     this.flippingPage.style.display = 'none';
                     this.flippingPage.style.transform = '';
                     this.flippingPage.style.transition = '';
@@ -346,11 +347,11 @@ class BookGallery {
             });
             
         } else {
-            // Backward flip: left page flips from left to right
-            // Store current content BEFORE decrementing
+            // Backward flip: left page flips from left to right  
+            // Store current content BEFORE changes
             const currentLeftContent = this.leftPage.innerHTML;
             
-            // Decrement spread FIRST to get the new pages
+            // Decrement spread
             this.currentSpread--;
             
             // Get new page content
@@ -364,48 +365,49 @@ class BookGallery {
                 ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[rightPageIndex].content}</div>`
                 : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             
-            // Create flipping page with current left page on front
+            // Update pages underneath immediately (they're hidden)
+            this.leftPage.innerHTML = newLeftContent;
+            this.rightPage.innerHTML = newRightContent;
+            this.leftPage.style.opacity = '0'; // Keep hidden initially
+            
+            // Setup flipping page with SOLID backgrounds
             this.flippingPage.innerHTML = '';
+            this.flippingPage.style.background = '#fdfdf8';
             
-            // Front side - current left page content
-            const frontSide = document.createElement('div');
-            frontSide.innerHTML = currentLeftContent;
-            this.flippingPage.appendChild(frontSide.firstElementChild);
+            // Front side - the page we're flipping (old left page)
+            const frontDiv = document.createElement('div');
+            frontDiv.style.cssText = 'width: 100%; height: 100%; background: #fdfdf8; position: absolute; backface-visibility: hidden;';
+            frontDiv.innerHTML = currentLeftContent;
+            this.flippingPage.appendChild(frontDiv);
             
-            // Back side - shows what will be the NEW RIGHT page after flip completes
-            const backSide = document.createElement('div');
-            backSide.className = 'page-back-side';
-            backSide.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0e8; transform: rotateY(180deg); backface-visibility: hidden;';
-            backSide.innerHTML = newRightContent;
-            this.flippingPage.appendChild(backSide);
+            // Back side - SOLID page, no content needed
+            const backDiv = document.createElement('div');
+            backDiv.style.cssText = 'width: 100%; height: 100%; background: #f0f0e8; position: absolute; transform: rotateY(180deg); backface-visibility: hidden;';
+            this.flippingPage.appendChild(backDiv);
             
-            // Setup flipping page
+            // Position and show flipping page
             this.flippingPage.style.display = 'block';
             this.flippingPage.style.left = '0';
             this.flippingPage.style.right = 'auto';
             this.flippingPage.style.width = '50%';
+            this.flippingPage.style.height = '100%';
             this.flippingPage.style.transform = 'rotateY(0deg)';
             this.flippingPage.style.transformOrigin = 'right center';
+            this.flippingPage.style.transformStyle = 'preserve-3d';
             this.flippingPage.style.zIndex = '100';
             
-            // Hide left page during flip
-            this.leftPage.style.opacity = '0';
-            
-            // DON'T update right page yet - keep the old content visible
-            
-            // Start flip animation
+            // Animate the flip
             requestAnimationFrame(() => {
                 this.flippingPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
                 this.flippingPage.style.transform = 'rotateY(180deg)';
                 
-                // After flip completes
+                // When flip is halfway, show the new left page
                 setTimeout(() => {
-                    // NOW update both pages with new content
-                    this.leftPage.innerHTML = newLeftContent;
-                    this.rightPage.innerHTML = newRightContent;
                     this.leftPage.style.opacity = '1';
-                    
-                    // Hide flipping page
+                }, 400);
+                
+                // Clean up after animation
+                setTimeout(() => {
                     this.flippingPage.style.display = 'none';
                     this.flippingPage.style.transform = '';
                     this.flippingPage.style.transition = '';
