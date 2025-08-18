@@ -94,7 +94,6 @@ class BookGallery {
                     <p>Each piece tells a unique story, crafted with passion and precision.</p>
                     <p class="instruction">← Hover over the page edges to turn →</p>
                 </div>
-                <div class="page-number-display">1</div>
             `
         });
         
@@ -122,7 +121,6 @@ class BookGallery {
                             <p>${p ? p.textContent : ''}</p>
                         </div>
                     </div>
-                    <div class="page-number-display">${pageNum}</div>
                 `
             });
             pageNum++;
@@ -136,7 +134,6 @@ class BookGallery {
                 type: 'contact',
                 content: `
                     ${contactTemplate.innerHTML}
-                    <div class="page-number-display">${pageNum}</div>
                 `
             });
         }
@@ -464,29 +461,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // Add initial CSS
 document.head.insertAdjacentHTML('beforeend', `
     <style>
-        .fullscreen-book {
-            opacity: 1;
-        }
-        
-        /* Page number display */
-        .page-number-display {
-            position: absolute;
-            bottom: 40px;
-            font-size: 0.9rem;
-            color: #d60270;
-            font-style: italic;
-            font-weight: 600;
-            opacity: 1;
-        }
-        
-        .left-page .page-number-display {
-            left: 60px;
-        }
-        
-        .right-page .page-number-display {
-            right: 60px;
-        }
-        
         /* Blank page */
         .blank-page {
             width: 100%;
