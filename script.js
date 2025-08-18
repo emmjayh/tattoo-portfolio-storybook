@@ -14,7 +14,7 @@ class BookGallery {
         this.init();
     }
     
-    init() {
+    async init() {
         // Cache DOM elements
         this.leftPage = document.getElementById('leftPage');
         this.rightPage = document.getElementById('rightPage');
@@ -23,6 +23,9 @@ class BookGallery {
         this.hoverRight = document.getElementById('hoverRight');
         this.pageCounter = document.getElementById('currentPageNum');
         this.book = document.getElementById('book');
+        
+        // Load images from server first
+        await this.loadImagesFromServer();
         
         // Load page content
         this.loadPages();
@@ -43,6 +46,44 @@ class BookGallery {
         this.preloadAllImages().catch(err => {
             console.warn('Image preload failed:', err);
         });
+    }
+    
+    async loadImagesFromServer() {
+        try {
+            // Fetch images from the server
+            const response = await fetch('/api/images');
+            const data = await response.json();
+            
+            if (data.images && data.images.length > 0) {
+                // Generate gallery templates for each image
+                const hiddenContent = document.getElementById('hidden-content');
+                const contactTemplate = hiddenContent.querySelector('[data-page="contact"]');
+                
+                // Clear existing templates except contact
+                hiddenContent.innerHTML = '';
+                
+                // Add gallery templates for each image
+                data.images.forEach((image, index) => {
+                    const template = document.createElement('div');
+                    template.className = 'page-template gallery-template';
+                    template.setAttribute('data-page', 'gallery');
+                    template.innerHTML = `
+                        <img src="${image.path}" alt="${image.displayName}">
+                        <h3>${image.displayName}</h3>
+                        <p></p>
+                    `;
+                    hiddenContent.appendChild(template);
+                });
+                
+                // Re-add contact template at the end
+                if (contactTemplate) {
+                    hiddenContent.appendChild(contactTemplate);
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to load images from server, using defaults:', error);
+            // If server fetch fails, we'll just have the contact page
+        }
     }
     
     async preloadAllImages() {

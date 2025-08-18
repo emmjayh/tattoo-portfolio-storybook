@@ -8,7 +8,8 @@
       "Bash(gh repo create:*)",
       "Bash(git push:*)",
       "Bash(npm start)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
