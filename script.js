@@ -235,6 +235,16 @@ class BookGallery {
         
         if (direction === 'next') {
             // Forward flip: right page flips to left
+            // Store current content BEFORE incrementing
+            const currentRightContent = this.rightPage.innerHTML;
+            
+            // Get the back page content (the page that's on the back of current right page)
+            const currentRightPageIndex = this.currentSpread * 2 + 1;
+            const backOfRightPageIndex = currentRightPageIndex + 1; // Next sequential page
+            const backOfRightContent = this.pages[backOfRightPageIndex]
+                ? `<div class="page-inner" style="background: #f0f0e8;">${this.pages[backOfRightPageIndex].content}</div>`
+                : '<div class="page-inner blank-page" style="background: #f0f0e8;"></div>';
+            
             this.currentSpread++;
             
             // Get new page content
@@ -248,17 +258,19 @@ class BookGallery {
                 ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[rightPageIndex].content}</div>`
                 : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             
-            // Create flipping page with current right and new left content
-            // Clone the entire right page to maintain exact structure
-            const rightPageClone = this.rightPage.cloneNode(true);
+            // Create flipping page with current right page on front
             this.flippingPage.innerHTML = '';
-            this.flippingPage.appendChild(rightPageClone.firstElementChild);
             
-            // Add back side with same structure
+            // Front side - current right page content
+            const frontSide = document.createElement('div');
+            frontSide.innerHTML = currentRightContent;
+            this.flippingPage.appendChild(frontSide.firstElementChild);
+            
+            // Back side - the content that's on the back of this page
             const backSide = document.createElement('div');
             backSide.className = 'page-back-side';
             backSide.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0e8; transform: rotateY(180deg); backface-visibility: hidden;';
-            backSide.innerHTML = newLeftContent;
+            backSide.innerHTML = backOfRightContent;
             this.flippingPage.appendChild(backSide);
             
             // Setup flipping page
@@ -300,6 +312,16 @@ class BookGallery {
             
         } else {
             // Backward flip: left page flips from left to right
+            // Store current content BEFORE decrementing
+            const currentLeftContent = this.leftPage.innerHTML;
+            
+            // Get the back page content (the page that's on the back of current left page)
+            const currentLeftPageIndex = this.currentSpread * 2;
+            const backOfLeftPageIndex = currentLeftPageIndex - 1; // Previous sequential page
+            const backOfLeftContent = this.pages[backOfLeftPageIndex] && backOfLeftPageIndex >= 0
+                ? `<div class="page-inner" style="background: #f0f0e8;">${this.pages[backOfLeftPageIndex].content}</div>`
+                : '<div class="page-inner blank-page" style="background: #f0f0e8;"></div>';
+            
             this.currentSpread--;
             
             // Get new page content
@@ -313,17 +335,19 @@ class BookGallery {
                 ? `<div class="page-inner" style="background: #fdfdf8;">${this.pages[rightPageIndex].content}</div>`
                 : '<div class="page-inner blank-page" style="background: #fdfdf8;"></div>';
             
-            // Create flipping page with current left and new right content
-            // Clone the entire left page to maintain exact structure
-            const leftPageClone = this.leftPage.cloneNode(true);
+            // Create flipping page with current left page on front
             this.flippingPage.innerHTML = '';
-            this.flippingPage.appendChild(leftPageClone.firstElementChild);
             
-            // Add back side with same structure
+            // Front side - current left page content
+            const frontSide = document.createElement('div');
+            frontSide.innerHTML = currentLeftContent;
+            this.flippingPage.appendChild(frontSide.firstElementChild);
+            
+            // Back side - the content that's on the back of this page
             const backSide = document.createElement('div');
             backSide.className = 'page-back-side';
             backSide.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0e8; transform: rotateY(180deg); backface-visibility: hidden;';
-            backSide.innerHTML = newRightContent;
+            backSide.innerHTML = backOfLeftContent;
             this.flippingPage.appendChild(backSide);
             
             // Setup flipping page
