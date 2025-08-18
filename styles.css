@@ -643,6 +643,7 @@ body {
         left: 0 !important;
         width: 100% !important;
         position: relative !important;
+        transition: opacity 0.3s ease;
     }
     
     /* Adjust hover zones */

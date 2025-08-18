@@ -2,10 +2,27 @@
 class BookSpread {
     constructor() {
         this.currentSpread = 0; // Which spread (pair of pages) we're viewing
+        this.currentPage = 0; // For mobile single-page view
         this.pages = [];
         this.isAnimating = false;
         this.hoverTimeout = null;
         this.hoverDelay = 1000;
+        this.isMobile = window.innerWidth <= 768;
+        
+        // Listen for resize to update mobile state
+        window.addEventListener('resize', () => {
+            const wasMobile = this.isMobile;
+            this.isMobile = window.innerWidth <= 768;
+            if (wasMobile !== this.isMobile) {
+                // Recalculate position when switching between mobile/desktop
+                if (this.isMobile) {
+                    this.currentPage = this.currentSpread * 2;
+                } else {
+                    this.currentSpread = Math.floor(this.currentPage / 2);
+                }
+                this.showCurrent();
+            }
+        });
         
         this.init();
     }
@@ -25,8 +42,8 @@ class BookSpread {
             // Setup book structure
             this.setupBook();
             
-            // Show initial spread
-            this.showSpread(0);
+            // Show initial page/spread
+            this.showCurrent();
             
             // Bind events
             this.bindEvents();
@@ -394,6 +411,33 @@ class BookSpread {
         this.book.appendChild(this.hoverRight);
     }
     
+    showCurrent() {
+        if (this.isMobile) {
+            this.showSinglePage(this.currentPage);
+        } else {
+            this.showSpread(this.currentSpread);
+        }
+    }
+    
+    showSinglePage(pageIndex) {
+        // For mobile - show only one page
+        if (pageIndex < 0 || pageIndex >= this.pages.length) return;
+        
+        // On mobile, we only use the right page
+        this.rightPageFront.innerHTML = this.pages[pageIndex].content;
+        
+        // Set next page for animation
+        if (pageIndex + 1 < this.pages.length) {
+            this.rightPageBack.innerHTML = this.pages[pageIndex + 1].content;
+            this.nextRightPage.innerHTML = this.pages[pageIndex + 1].content;
+        } else {
+            this.rightPageBack.innerHTML = '<div class="blank-page"></div>';
+            this.nextRightPage.innerHTML = '<div class="blank-page"></div>';
+        }
+        
+        this.updateCounter();
+    }
+    
     showSpread(spreadIndex) {
         const leftIndex = spreadIndex * 2;
         const rightIndex = spreadIndex * 2 + 1;
@@ -442,51 +486,100 @@ class BookSpread {
     turnPage(direction) {
         if (this.isAnimating) return;
         
-        const maxSpreads = Math.ceil(this.pages.length / 2);
-        
-        if (direction === 'next' && this.currentSpread >= maxSpreads - 1) return;
-        if (direction === 'prev' && this.currentSpread <= 0) return;
-        
-        this.isAnimating = true;
-        
-        if (direction === 'next') {
-            // Flip right page to left
-            this.rightPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-            this.rightPage.style.transform = 'rotateY(-180deg)';
+        if (this.isMobile) {
+            // Mobile: flip one page at a time
+            if (direction === 'next' && this.currentPage >= this.pages.length - 1) return;
+            if (direction === 'prev' && this.currentPage <= 0) return;
             
-            setTimeout(() => {
-                // Update spread
-                this.currentSpread++;
-                
-                // Reset and update pages
-                this.rightPage.style.transition = 'none';
-                this.rightPage.style.transform = 'rotateY(0deg)';
-                this.showSpread(this.currentSpread);
-                
-                this.isAnimating = false;
-            }, 800);
+            this.isAnimating = true;
             
+            if (direction === 'next') {
+                // Simple fade transition for mobile
+                this.rightPage.style.opacity = '0';
+                
+                setTimeout(() => {
+                    this.currentPage++;
+                    this.showSinglePage(this.currentPage);
+                    this.rightPage.style.opacity = '1';
+                    this.isAnimating = false;
+                }, 300);
+            } else {
+                // Previous page
+                this.rightPage.style.opacity = '0';
+                
+                setTimeout(() => {
+                    this.currentPage--;
+                    this.showSinglePage(this.currentPage);
+                    this.rightPage.style.opacity = '1';
+                    this.isAnimating = false;
+                }, 300);
+            }
         } else {
-            // Backward flip - flip left page to right
-            this.leftPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-            this.leftPage.style.transform = 'rotateY(180deg)';
+            // Desktop: flip spreads (2 pages at a time)
+            const maxSpreads = Math.ceil(this.pages.length / 2);
             
-            setTimeout(() => {
-                // Update spread
-                this.currentSpread--;
+            if (direction === 'next' && this.currentSpread >= maxSpreads - 1) return;
+            if (direction === 'prev' && this.currentSpread <= 0) return;
+            
+            this.isAnimating = true;
+            
+            if (direction === 'next') {
+                // Flip right page to left
+                this.rightPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.rightPage.style.transform = 'rotateY(-180deg)';
                 
-                // Reset and update pages
-                this.leftPage.style.transition = 'none';
-                this.leftPage.style.transform = 'rotateY(0deg)';
-                this.showSpread(this.currentSpread);
+                setTimeout(() => {
+                    // Update spread
+                    this.currentSpread++;
+                    
+                    // Reset and update pages
+                    this.rightPage.style.transition = 'none';
+                    this.rightPage.style.transform = 'rotateY(0deg)';
+                    this.showSpread(this.currentSpread);
+                    
+                    this.isAnimating = false;
+                }, 800);
                 
-                this.isAnimating = false;
-            }, 800);
+            } else {
+                // Backward flip - flip left page to right
+                this.leftPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.leftPage.style.transform = 'rotateY(180deg)';
+                
+                setTimeout(() => {
+                    // Update spread
+                    this.currentSpread--;
+                    
+                    // Reset and update pages
+                    this.leftPage.style.transition = 'none';
+                    this.leftPage.style.transform = 'rotateY(0deg)';
+                    this.showSpread(this.currentSpread);
+                    
+                    this.isAnimating = false;
+                }, 800);
+            }
         }
     }
     
     jumpToSpread(targetSpread) {
         if (this.isAnimating) return;
+        
+        if (this.isMobile) {
+            // On mobile, jump to the specific page
+            const targetPage = targetSpread;
+            if (targetPage < 0 || targetPage >= this.pages.length) return;
+            if (targetPage === this.currentPage) return;
+            
+            this.isAnimating = true;
+            this.rightPage.style.opacity = '0';
+            
+            setTimeout(() => {
+                this.currentPage = targetPage;
+                this.showSinglePage(this.currentPage);
+                this.rightPage.style.opacity = '1';
+                this.isAnimating = false;
+            }, 300);
+            return;
+        }
         
         const maxSpreads = Math.ceil(this.pages.length / 2);
         if (targetSpread < 0 || targetSpread >= maxSpreads) return;
@@ -542,13 +635,23 @@ class BookSpread {
     }
     
     updateCounter() {
-        const leftNum = this.currentSpread * 2 + 1;
-        const rightNum = this.currentSpread * 2 + 2;
-        
-        if (this.currentSpread === 0) {
-            this.pageCounter.textContent = 'Cover';
+        if (this.isMobile) {
+            // Mobile shows single page number
+            if (this.currentPage === 0 || this.currentPage === 1) {
+                this.pageCounter.textContent = 'Cover';
+            } else {
+                this.pageCounter.textContent = `Page ${this.currentPage + 1} of ${this.pages.length}`;
+            }
         } else {
-            this.pageCounter.textContent = `Pages ${leftNum}-${rightNum}`;
+            // Desktop shows spread numbers
+            const leftNum = this.currentSpread * 2 + 1;
+            const rightNum = this.currentSpread * 2 + 2;
+            
+            if (this.currentSpread === 0) {
+                this.pageCounter.textContent = 'Cover';
+            } else {
+                this.pageCounter.textContent = `Pages ${leftNum}-${rightNum}`;
+            }
         }
     }
     
