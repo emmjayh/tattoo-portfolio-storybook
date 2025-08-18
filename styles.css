@@ -590,12 +590,132 @@ body {
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
-    .book {
-        width: 95%;
+    /* Fix background to cover full viewport */
+    .fullscreen-book {
+        background-size: 200% 200%;
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
     }
     
-    .page-inner {
-        padding: 30px;
+    /* Fix book container to fill viewport */
+    .book-container {
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+    
+    /* Fix book to fill container */
+    .book {
+        width: 100%;
+        height: 100%;
+        max-width: 100vw;
+        position: relative;
+    }
+    
+    /* Hide page stacks and spine on mobile */
+    .page-stack,
+    .book-spine {
+        display: none !important;
+    }
+    
+    /* Single page view on mobile */
+    .page {
+        width: 100%;
+        position: relative;
+    }
+    
+    /* Hide left page on mobile */
+    #leftPage,
+    .left-page,
+    .prevLeftPage {
+        display: none !important;
+    }
+    
+    /* Make right page full width */
+    #rightPage,
+    .right-page {
+        left: 0 !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+    
+    /* Adjust hover zones */
+    .hover-zone {
+        width: 30%;
+        height: 100%;
+        top: 0;
+    }
+    
+    .hover-left {
+        left: 0;
+    }
+    
+    .hover-right {
+        right: 0;
+    }
+    
+    /* Page counter mobile style */
+    .page-counter {
+        bottom: 20px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    /* Content adjustments */
+    .page-inner,
+    .gallery-content {
+        padding: 20px !important;
+    }
+    
+    .gallery-content img {
+        max-width: 100%;
+        height: auto;
+        max-height: 50vh;
+        object-fit: contain;
+    }
+    
+    /* Cover page adjustments */
+    .cover-left-page,
+    .cover-page {
+        padding: 20px !important;
+    }
+    
+    .portfolio-title {
+        font-size: 2.5rem !important;
+        letter-spacing: 5px !important;
+    }
+    
+    /* Thumbnail grid for mobile */
+    .thumbnail-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+    
+    .cover-thumbnail {
+        aspect-ratio: 1;
+    }
+    
+    /* Adjust most recent showpiece */
+    .cover-page h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Ensure visibility */
+    body,
+    .fullscreen-book,
+    .book-container,
+    .book,
+    .page {
+        opacity: 1 !important;
+        visibility: visible !important;
     }
     
     .portfolio-title {
