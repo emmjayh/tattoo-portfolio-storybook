@@ -458,19 +458,14 @@ class BookGallery {
 // Initialize when ready
 document.addEventListener('DOMContentLoaded', () => {
     const gallery = new BookGallery();
-    
-    // Fade in animation
-    setTimeout(() => {
-        document.querySelector('.fullscreen-book').style.opacity = '1';
-    }, 100);
+    // No fade in - show immediately
 });
 
 // Add initial CSS
 document.head.insertAdjacentHTML('beforeend', `
     <style>
         .fullscreen-book {
-            opacity: 0;
-            transition: opacity 1s ease-in;
+            opacity: 1;
         }
         
         /* Page number display */

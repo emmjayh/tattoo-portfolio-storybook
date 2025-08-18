@@ -25,6 +25,7 @@ body {
         linear-gradient(125deg, #1a0f1f 0%, #0d0d0d 25%, #1f1a0f 50%, #0d0d0d 75%, #0f1f1a 100%);
     background-size: 400% 400%;
     animation: backgroundShift 20s ease infinite;
+    opacity: 1 !important;
 }
 
 /* Animated gradient background */
