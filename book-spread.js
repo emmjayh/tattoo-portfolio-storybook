@@ -618,7 +618,7 @@ class BookSpread {
                 `;
                 tempFront.innerHTML = this.leftPageFront.innerHTML;
                 
-                // Back shows previous LEFT page (destination)
+                // Back shows previous RIGHT page (what becomes the new right page)
                 const tempBack = document.createElement('div');
                 tempBack.style.cssText = `
                     position: absolute;
@@ -629,8 +629,8 @@ class BookSpread {
                     transform: rotateY(180deg) scaleX(-1);
                     overflow: hidden;
                 `;
-                if (prevLeftIndex >= 0 && prevLeftIndex < this.pages.length) {
-                    tempBack.innerHTML = this.pages[prevLeftIndex].content;
+                if (prevRightIndex >= 0 && prevRightIndex < this.pages.length) {
+                    tempBack.innerHTML = this.pages[prevRightIndex].content;
                 }
                 
                 tempFlip.appendChild(tempFront);
