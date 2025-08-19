@@ -534,32 +534,122 @@ class BookSpread {
         if (this.isAnimating) return;
         
         if (this.isMobile) {
-            // Mobile: flip one page at a time
+            // Mobile: flip one page at a time with proper animation
             if (direction === 'next' && this.currentPage >= this.pages.length - 1) return;
             if (direction === 'prev' && this.currentPage <= 0) return;
             
             this.isAnimating = true;
             
             if (direction === 'next') {
-                // Simple fade transition for mobile
+                // Forward flip animation for mobile
+                const nextPageContent = this.pages[this.currentPage + 1].content;
+                
+                // Create temporary flip element
+                const tempFlip = document.createElement('div');
+                tempFlip.style.cssText = `
+                    position: absolute;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    transform-origin: left center;
+                    transform-style: preserve-3d;
+                    z-index: 30;
+                    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                `;
+                
+                const tempFront = document.createElement('div');
+                tempFront.style.cssText = `
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background: #fdfdf8;
+                    backface-visibility: hidden;
+                `;
+                tempFront.innerHTML = this.pages[this.currentPage].content;
+                
+                const tempBack = document.createElement('div');
+                tempBack.style.cssText = `
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background: #f0f0e8;
+                    backface-visibility: hidden;
+                    transform: rotateY(180deg);
+                `;
+                tempBack.innerHTML = nextPageContent;
+                
+                tempFlip.appendChild(tempFront);
+                tempFlip.appendChild(tempBack);
+                this.book.appendChild(tempFlip);
+                
                 this.rightPage.style.opacity = '0';
+                
+                requestAnimationFrame(() => {
+                    tempFlip.style.transform = 'rotateY(-180deg)';
+                });
                 
                 setTimeout(() => {
                     this.currentPage++;
-                    this.showSinglePage(this.currentPage);
+                    tempFlip.remove();
                     this.rightPage.style.opacity = '1';
+                    this.showSinglePage(this.currentPage);
                     this.isAnimating = false;
-                }, 300);
+                }, 600);
             } else {
-                // Previous page
+                // Backward flip animation for mobile
+                const prevPageContent = this.currentPage > 0 ? this.pages[this.currentPage - 1].content : '';
+                
+                // Create temporary flip element
+                const tempFlip = document.createElement('div');
+                tempFlip.style.cssText = `
+                    position: absolute;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    transform-origin: right center;
+                    transform-style: preserve-3d;
+                    z-index: 30;
+                    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                `;
+                
+                const tempFront = document.createElement('div');
+                tempFront.style.cssText = `
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background: #fdfdf8;
+                    backface-visibility: hidden;
+                `;
+                tempFront.innerHTML = this.pages[this.currentPage].content;
+                
+                const tempBack = document.createElement('div');
+                tempBack.style.cssText = `
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background: #f0f0e8;
+                    backface-visibility: hidden;
+                    transform: rotateY(180deg);
+                `;
+                tempBack.innerHTML = prevPageContent;
+                
+                tempFlip.appendChild(tempFront);
+                tempFlip.appendChild(tempBack);
+                this.book.appendChild(tempFlip);
+                
                 this.rightPage.style.opacity = '0';
+                
+                requestAnimationFrame(() => {
+                    tempFlip.style.transform = 'rotateY(180deg)';
+                });
                 
                 setTimeout(() => {
                     this.currentPage--;
-                    this.showSinglePage(this.currentPage);
+                    tempFlip.remove();
                     this.rightPage.style.opacity = '1';
+                    this.showSinglePage(this.currentPage);
                     this.isAnimating = false;
-                }, 300);
+                }, 600);
             }
         } else {
             // Desktop: flip spreads (2 pages at a time)
