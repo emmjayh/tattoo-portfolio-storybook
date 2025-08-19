@@ -588,28 +588,74 @@ class BookSpread {
                 }, 800);
                 
             } else {
-                // Backward flip - flip left page to right
-                // When flipping backward, we need to show the PREVIOUS LEFT PAGE on the back
-                // because when the left page rotates 180deg, its back becomes visible
-                const prevSpreadLeftIndex = (this.currentSpread - 1) * 2;
-                console.log('Backward flip from spread', this.currentSpread, 'to', this.currentSpread - 1);
-                console.log('Setting left page back to show page', prevSpreadLeftIndex);
+                // Backward flip - completely different approach
+                // Instead of flipping the left page, we'll flip a temporary page element
+                const prevLeftIndex = (this.currentSpread - 1) * 2;
+                const prevRightIndex = (this.currentSpread - 1) * 2 + 1;
                 
-                if (prevSpreadLeftIndex >= 0 && prevSpreadLeftIndex < this.pages.length) {
-                    // Un-mirror the content since the back is already rotated 180deg
-                    this.leftPageBack.innerHTML = `<div style="transform: scaleX(-1); width: 100%; height: 100%;">${this.pages[prevSpreadLeftIndex].content}</div>`;
+                // Create a temporary flipping page
+                const tempFlip = document.createElement('div');
+                tempFlip.style.cssText = `
+                    position: absolute;
+                    left: 0;
+                    width: 50%;
+                    height: 100%;
+                    transform-origin: right center;
+                    transform-style: preserve-3d;
+                    z-index: 30;
+                    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                `;
+                
+                // Front shows current left page
+                const tempFront = document.createElement('div');
+                tempFront.style.cssText = `
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background: #fdfdf8;
+                    backface-visibility: hidden;
+                    overflow: hidden;
+                `;
+                tempFront.innerHTML = this.leftPageFront.innerHTML;
+                
+                // Back shows previous LEFT page (destination)
+                const tempBack = document.createElement('div');
+                tempBack.style.cssText = `
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background: #f0f0e8;
+                    backface-visibility: hidden;
+                    transform: rotateY(180deg) scaleX(-1);
+                    overflow: hidden;
+                `;
+                if (prevLeftIndex >= 0 && prevLeftIndex < this.pages.length) {
+                    tempBack.innerHTML = this.pages[prevLeftIndex].content;
                 }
                 
-                this.leftPage.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-                this.leftPage.style.transform = 'rotateY(180deg)';
+                tempFlip.appendChild(tempFront);
+                tempFlip.appendChild(tempBack);
+                this.book.appendChild(tempFlip);
+                
+                // Hide the original left page during flip
+                this.leftPage.style.opacity = '0';
+                
+                // Start the flip animation
+                requestAnimationFrame(() => {
+                    tempFlip.style.transform = 'rotateY(180deg)';
+                });
                 
                 setTimeout(() => {
                     // Update spread
                     this.currentSpread--;
                     
-                    // Reset and update pages
-                    this.leftPage.style.transition = 'none';
-                    this.leftPage.style.transform = 'rotateY(0deg)';
+                    // Remove temp element
+                    tempFlip.remove();
+                    
+                    // Show the original left page again
+                    this.leftPage.style.opacity = '1';
+                    
+                    // Update pages
                     this.showSpread(this.currentSpread);
                     
                     this.isAnimating = false;
